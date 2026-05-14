@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface Particle {
   id: number
@@ -31,41 +31,41 @@ export function ParticleExplosion({
   onComplete,
   className = '',
 }: ParticleExplosionProps) {
-  const [particles, setParticles] = useState<Particle[]>([])
   const [hasCompleted, setHasCompleted] = useState(false)
+
+  const particles = useMemo(() => {
+    if (!isActive || hasCompleted) return []
+    
+    const newParticles: Particle[] = []
+    for (let i = 0; i < particleCount; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const distance = 50 + Math.random() * 200
+      const x = Math.cos(angle) * distance
+      const y = Math.sin(angle) * distance
+      
+      newParticles.push({
+        id: i,
+        x,
+        y,
+        size: 4 + Math.random() * 8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        duration: 0.5 + Math.random() * (duration - 0.5),
+        delay: Math.random() * 0.3,
+      })
+    }
+    return newParticles
+  }, [isActive, hasCompleted, particleCount, colors, duration])
 
   useEffect(() => {
     if (isActive && !hasCompleted) {
-      const newParticles: Particle[] = []
-      
-      for (let i = 0; i < particleCount; i++) {
-        const angle = Math.random() * Math.PI * 2
-        const distance = 50 + Math.random() * 200
-        const x = Math.cos(angle) * distance
-        const y = Math.sin(angle) * distance
-        
-        newParticles.push({
-          id: i,
-          x,
-          y,
-          size: 4 + Math.random() * 8,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          rotation: Math.random() * 360,
-          duration: 0.5 + Math.random() * (duration - 0.5),
-          delay: Math.random() * 0.3,
-        })
-      }
-      
-      setParticles(newParticles)
-      
       const timer = setTimeout(() => {
         setHasCompleted(true)
         onComplete?.()
       }, duration * 1000)
-      
       return () => clearTimeout(timer)
     }
-  }, [isActive, hasCompleted, particleCount, colors, duration, onComplete])
+  }, [isActive, hasCompleted, duration, onComplete])
 
   if (!isActive || hasCompleted) {
     return null

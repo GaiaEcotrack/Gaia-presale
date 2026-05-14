@@ -111,7 +111,7 @@ export default function TermsPage() {
             <h2>10. Contact</h2>
             <p>
               For questions about these Terms and Conditions, please contact us at{' '}
-              <a href="mailto:legal@nexusprotocol.io">legal@nexusprotocol.io</a>
+              <a href="mailto:legal@gaiaecotrack.com">legal@gaiaecotrack.com</a>
             </p>
           </motion.div>
         </div>

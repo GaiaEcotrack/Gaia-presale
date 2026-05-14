@@ -113,7 +113,7 @@ export default function PrivacyPage() {
             <h2>11. Contact Us</h2>
             <p>
               For questions about this Privacy Policy, please contact us at{' '}
-              <a href="mailto:privacy@nexusprotocol.io">privacy@nexusprotocol.io</a>
+              <a href="mailto:privacy@gaiaecotrack.com">privacy@gaiaecotrack.com</a>
             </p>
           </motion.div>
         </div>

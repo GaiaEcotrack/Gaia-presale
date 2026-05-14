@@ -24,7 +24,7 @@ export function HeroSection() {
   const { ref, isInView } = useInView(0.1)
   
   const { activeStage, nextStage, isPresaleActive, presaleEndDate, nextStageStartDate } = usePresaleConfigReadonly()
-  const [isPresaleEnded, setIsPresaleEnded] = useState(false)
+  const isPresaleEnded = activeStage ? new Date() >= activeStage.endDate : false
   const [isPresaleStarting, setIsPresaleStarting] = useState(false)
   const [showParticles, setShowParticles] = useState(false)
   const [hasShownAnimation, setHasShownAnimation] = useState(false)
@@ -50,24 +50,15 @@ export function HeroSection() {
 
   const handleParticleComplete = () => {
     setShowParticles(false)
-    setIsPresaleEnded(true)
   }
 
   useEffect(() => {
-    const now = new Date()
-    
-    // Check if presale has ended
-    if (activeStage && now >= activeStage.endDate && !hasShownAnimation) {
-      setIsPresaleEnded(true)
-    }
-    
-    // Update presale status periodically
     const interval = setInterval(() => {
       setPresaleStatus(getPresaleStatus())
-    }, 60000) // Update every minute
+    }, 60000)
     
     return () => clearInterval(interval)
-  }, [activeStage, hasShownAnimation])
+  }, [])
 
   // Determine which countdown to show
   const showStartCountdown = !isPresaleActive && nextStage !== null

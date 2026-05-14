@@ -120,7 +120,7 @@ export default function DisclaimerPage() {
             <h2>Contact</h2>
             <p>
               For questions about this disclaimer, please contact us at{' '}
-              <a href="mailto:legal@nexusprotocol.io">legal@nexusprotocol.io</a>
+              <a href="mailto:legal@gaiaecotrack.com">legal@gaiaecotrack.com</a>
             </p>
           </motion.div>
         </div>

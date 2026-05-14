@@ -148,8 +148,8 @@ export default function TeamPage() {
           >
             We're always looking for talented individuals passionate about DeFi and blockchain technology.
             Reach out to us at{' '}
-            <a href="mailto:careers@nexusprotocol.io" className="text-foreground underline hover:no-underline">
-              careers@nexusprotocol.io
+            <a href="mailto:careers@gaiaecotrack.com" className="text-foreground underline hover:no-underline">
+              careers@gaiaecotrack.com
             </a>
           </motion.p>
         </div>

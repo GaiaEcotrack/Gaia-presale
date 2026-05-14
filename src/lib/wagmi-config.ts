@@ -2,7 +2,7 @@ import { http, createConfig } from 'wagmi'
 import { mainnet, sepolia, polygon, bsc, arbitrum } from 'wagmi/chains'
 import { injected, walletConnect, coinbaseWallet } from 'wagmi/connectors'
 
-const projectId = 'nexus-presale-demo'
+const projectId = 'gaia-ecotrack-demo'
 
 export const config = createConfig({
   chains: [mainnet, sepolia, polygon, bsc, arbitrum],
@@ -10,7 +10,7 @@ export const config = createConfig({
     injected(),
     walletConnect({ projectId }),
     coinbaseWallet({
-      appName: 'NEXUS Presale',
+      appName: 'Gaia Ecotrack',
     }),
   ],
   transports: {

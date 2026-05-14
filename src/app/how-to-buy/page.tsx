@@ -64,7 +64,7 @@ const STEPS = [
       'Wait for the presale to conclude',
       'Visit our claim portal after TGE',
       'Connect the wallet used for purchase',
-      'Click "Claim Tokens" to receive your NXS',
+      'Click "Claim Tokens" to receive your GAIA',
     ],
   },
 ]

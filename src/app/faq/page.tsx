@@ -43,7 +43,7 @@ export default function FAQPage() {
             transition={{ delay: 0.1 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Find answers to common questions about the NEXUS Protocol presale.
+            Find answers to common questions about the Gaia Ecotrack presale.
           </motion.p>
         </div>
       </section>
