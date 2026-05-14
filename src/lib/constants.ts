@@ -234,6 +234,7 @@ export const SOCIAL_LINKS = {
   medium: "https://medium.com/@gaiaecotrack",
   linkedin: "https://linkedin.com/company/gaia-ecotrack",
   instagram: "https://instagram.com/gaiaecotrack",
+  github: "https://github.com/gaiaecotrack",
 };
 
 // Stats

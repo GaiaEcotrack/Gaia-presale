@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useEffect } from 'react'
 import { useAccount, useConnect, useDisconnect, useBalance, useSwitchChain } from 'wagmi'
-import { usePresaleStore } from '@/store/presale-store'
+import { formatEther } from 'viem'
 
 export function useWallet() {
   const { address, isConnected, chain } = useAccount()
@@ -50,6 +50,8 @@ export function useWallet() {
     switchChain?.({ chainId: 1 })
   }, [switchChain])
 
+  const formattedBalance = balance ? Number(formatEther(balance.value)).toFixed(4) : '0'
+
   return {
     // State
     address,
@@ -57,7 +59,7 @@ export function useWallet() {
     isConnecting,
     isSwitching,
     isCorrectNetwork,
-    balance: balance?.formatted || '0',
+    balance: formattedBalance,
     chain,
     showWalletModal,
     connectError,
