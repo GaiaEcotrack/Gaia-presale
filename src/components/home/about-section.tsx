@@ -110,7 +110,7 @@ export function AboutSection() {
         >
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">Key Features</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Built on Vara Network for efficiency, transparency, and sustainability.
+            Built on Solana for efficiency, transparency, and sustainability.
           </p>
         </motion.div>
 

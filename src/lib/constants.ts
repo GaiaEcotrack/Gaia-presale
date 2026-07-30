@@ -4,13 +4,13 @@ export const TOKEN_CONFIG = {
   symbol: "GAIA",
   totalSupply: 1_000_000_000,
   decimals: 18,
-  presaleAllocated: 400_000_000, // 40%
+  presaleAllocated: 200_000_000, // 20%
   softCap: 500_000, // $500K
   hardCap: 2_500_000, // $2.5M
   minPurchase: 0.01, // ETH
   maxPurchase: 50, // ETH
   contractAddress: "0xGaiaEcotrack123456789abcdef123456789" as `0x${string}`,
-  network: "Vara Network",
+  network: "Solana",
 };
 
 // Presale stages - Movido a src/config/presale-config.ts
@@ -18,80 +18,81 @@ export const TOKEN_CONFIG = {
 
 // Tokenomics allocation
 export const TOKENOMICS = {
-  presale: { percentage: 40, label: "Presale", color: "#171717" },
-  liquidity: { percentage: 15, label: "Liquidity Pool", color: "#404040" },
-  team: { percentage: 12, label: "Team & Advisors", color: "#737373" },
-  ecosystem: { percentage: 15, label: "Ecosystem Development", color: "#525252" },
-  marketing: { percentage: 8, label: "Marketing", color: "#a3a3a3" },
-  reserve: { percentage: 5, label: "Reserve", color: "#d4d4d4" },
-  airdrop: { percentage: 5, label: "Community Rewards", color: "#e5e5e5" },
+  ecosystem: { percentage: 25, label: "Ecosystem Treasury", color: "#525252" },
+  team: { percentage: 20, label: "Team & Founders", color: "#737373" },
+  presale: { percentage: 20, label: "Public Presale", color: "#171717" },
+  liquidity: { percentage: 15, label: "DEX Liquidity", color: "#404040" },
+  staking: { percentage: 10, label: "Staking Rewards", color: "#a3a3a3" },
+  seed: { percentage: 10, label: "Seed Investors", color: "#d4d4d4" },
 };
 
 // Roadmap phases
 export const ROADMAP_PHASES = [
   {
     id: 1,
-    phase: "Q3 2024",
-    title: "Foundation & Development",
-    description: "Project conception, team formation, and initial smart contract development on Vara Network.",
+    phase: "2023–2026",
+    title: "Phase 0 — Validation & Legal Shield",
+    description: "12-project pilot (150 kW); Solana migration; 6+ MW in onboarding; legal opinions from SFC, CREG and DIAN; MoU with authorized trader and carbon operator.",
     milestones: [
-      "Project Ideation",
-      "Team Assembly",
-      "Vara Network Integration",
-      "Smart Contract Development",
+      "12-project pilot (150 kW)",
+      "Solana migration",
+      "6+ MW in onboarding",
+      "Legal opinions from SFC, CREG and DIAN",
+      "MoU with authorized trader and carbon operator",
     ],
     completed: true,
   },
   {
     id: 2,
-    phase: "Q4 2024",
-    title: "Platform Alpha",
-    description: "Alpha platform launch, energy tokenization system, and initial testing with pilot users.",
+    phase: "2026–2027",
+    title: "Phase 1 — Launch & Consolidation",
+    description: "Token Launch (GAIA & GAIA-E) — September 2026. Commercial launch of platform 2.0. Distributor integration. I-REC module. First proprietary mini solar farm (1 MW).",
     milestones: [
-      "Alpha Platform Launch",
-      "Energy Tokenization System",
-      "Pilot User Testing",
-      "Security Audits",
-    ],
-    completed: true,
-  },
-  {
-    id: 3,
-    phase: "Q1 2025",
-    title: "Token Presale",
-    description: "GAIA token presale launch, community building, and strategic partnerships with solar energy providers.",
-    milestones: [
-      "Token Presale Launch",
-      "Community Building",
-      "Solar Provider Partnerships",
-      "Beta Platform Release",
+      "Token Launch (GAIA & GAIA-E) — September 2026",
+      "Commercial launch of platform 2.0",
+      "Distributor integration",
+      "I-REC module",
+      "First proprietary mini solar farm (1 MW)",
     ],
     completed: false,
     current: true,
   },
   {
-    id: 4,
-    phase: "Q2 2025",
-    title: "Platform Launch",
-    description: "Full platform launch with P2P energy marketplace, carbon credit integration, and mobile app.",
+    id: 3,
+    phase: "2028–2030",
+    title: "Phase 2 — LATAM Expansion",
+    description: "Regional expansion with presence in Chile (350 MW), Mexico (350 MW), Brazil (350 MW) and Peru (150 MW).",
     milestones: [
-      "Full Platform Launch",
-      "P2P Energy Marketplace",
-      "Carbon Credit System",
-      "Mobile App Release",
+      "Chile (350 MW)",
+      "Mexico (350 MW)",
+      "Brazil (350 MW)",
+      "Peru (150 MW)",
+    ],
+    completed: false,
+  },
+  {
+    id: 4,
+    phase: "2030–2035",
+    title: "Phase 3 — Global Expansion & DAO",
+    description: "Expansion to Southeast Asia (250 MW), Africa (200 MW) and Europe (150 MW). DAO activation (mid-2030).",
+    milestones: [
+      "Southeast Asia (250 MW)",
+      "Africa (200 MW)",
+      "Europe (150 MW)",
+      "DAO activation (mid-2030)",
     ],
     completed: false,
   },
   {
     id: 5,
-    phase: "Q3-Q4 2025",
-    title: "Global Expansion",
-    description: "International expansion, integration with more renewable energy sources, and DAO governance.",
+    phase: "2035",
+    title: "Global Target",
+    description: "2,000 MW tokenized. 100,000 self-generators. 9 operational countries. $18M USD annual revenue.",
     milestones: [
-      "Multi-region Launch",
-      "Wind & Hydro Integration",
-      "DAO Governance",
-      "CEX Listings",
+      "2,000 MW tokenized",
+      "100,000 self-generators",
+      "9 operational countries",
+      "$18M USD annual revenue",
     ],
     completed: false,
   },
@@ -111,7 +112,7 @@ export const TEAM_MEMBERS = [
     id: 2,
     name: "Carlos Rodríguez",
     role: "CTO & Co-Founder",
-    bio: "Blockchain architect specialized in Rust and Gear Protocol. Former tech lead at major energy companies.",
+    bio: "Blockchain architect specialized in Rust and Solana program development. Former tech lead at major energy companies.",
     linkedin: "#",
     twitter: "#",
   },
@@ -127,7 +128,7 @@ export const TEAM_MEMBERS = [
     id: 4,
     name: "Diego López",
     role: "Lead Developer",
-    bio: "Full-stack developer with expertise in smart contracts and DeFi protocols on Vara Network.",
+    bio: "Full-stack developer with expertise in smart contracts and DeFi protocols on Solana.",
     linkedin: "#",
     twitter: "#",
   },
@@ -162,7 +163,7 @@ export const ADVISORS = [
     id: 2,
     name: "Elena Torres",
     role: "Technical Advisor",
-    bio: "Core contributor to Vara Network and Gear Protocol. Blockchain infrastructure expert.",
+    bio: "Core contributor to Solana ecosystem. Blockchain infrastructure expert.",
     linkedin: "#",
   },
   {
@@ -185,7 +186,7 @@ export const FAQ_DATA = [
   {
     id: 2,
     question: "How does energy tokenization work?",
-    answer: "Through smart contracts on Vara Network, Gaia Ecotrack verifies energy production from connected renewable sources (solar panels, wind turbines, etc.) and mints GAIA tokens for each verified kWh. This creates a transparent and traceable record of clean energy generation.",
+    answer: "Through smart contracts on Solana, Gaia Ecotrack verifies energy production from connected renewable sources (solar panels, wind turbines, etc.) and mints GAIA tokens for each verified kWh. This creates a transparent and traceable record of clean energy generation.",
     category: "technical",
   },
   {
@@ -196,8 +197,8 @@ export const FAQ_DATA = [
   },
   {
     id: 4,
-    question: "Why is Gaia built on Vara Network?",
-    answer: "Vara Network provides the ideal infrastructure for Gaia with its high throughput, low fees, and energy-efficient consensus mechanism. This aligns perfectly with our mission of promoting sustainable blockchain solutions.",
+    question: "Why is Gaia built on Solana?",
+    answer: "Solana provides the ideal infrastructure for Gaia with its high throughput, low fees, and energy-efficient consensus mechanism. This aligns perfectly with our mission of promoting sustainable blockchain solutions.",
     category: "technical",
   },
   {
@@ -254,14 +255,14 @@ export const NETWORK_CONFIG = {
   currency: "ETH",
   rpcUrl: "https://eth.llamarpc.com",
   blockExplorer: "https://etherscan.io",
-  targetNetwork: "Vara Network",
+  targetNetwork: "Solana",
 };
 
 // Security badges
 export const SECURITY_BADGES = [
   { name: "Audited by CertiK", icon: "shield-check" },
   { name: "KYC Verified", icon: "user-check" },
-  { name: "Vara Network Partner", icon: "file-check" },
+  { name: "Solana Partner", icon: "file-check" },
   { name: "Carbon Neutral", icon: "leaf" },
 ];
 

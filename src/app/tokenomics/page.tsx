@@ -13,12 +13,12 @@ const chartData = Object.entries(TOKENOMICS).map(([key, value]) => ({
 }))
 
 const VESTING_SCHEDULE = [
-  { category: 'Presale', tge: '25%', vesting: '6 months linear', total: '100%' },
-  { category: 'Team', tge: '0%', vesting: '12 months cliff, 24 months linear', total: '100%' },
-  { category: 'Advisors', tge: '0%', vesting: '6 months cliff, 18 months linear', total: '100%' },
-  { category: 'Liquidity', tge: '100%', vesting: 'Unlocked at TGE', total: '100%' },
-  { category: 'Marketing', tge: '10%', vesting: '24 months linear', total: '100%' },
-  { category: 'Development', tge: '0%', vesting: '6 months cliff, 24 months linear', total: '100%' },
+  { category: 'Ecosystem Treasury', tge: '0%', vesting: '4-year linear release', total: '100%' },
+  { category: 'Team & Founders', tge: '0%', vesting: '12-month cliff, 4-year vesting', total: '100%' },
+  { category: 'Public Presale', tge: '25%', vesting: '6-month lock, 25% monthly release', total: '100%' },
+  { category: 'DEX Liquidity', tge: '100%', vesting: '24-month Streamflow lock', total: '100%' },
+  { category: 'Staking Rewards', tge: '0%', vesting: '5-year programmed emissions', total: '100%' },
+  { category: 'Seed Investors', tge: '0%', vesting: '2-year vesting', total: '100%' },
 ]
 
 export default function TokenomicsPage() {
@@ -208,7 +208,7 @@ export default function TokenomicsPage() {
               </div>
               <div>
                 <p className="font-medium">Community First</p>
-                <p className="text-sm text-muted-foreground">40% allocated to public presale</p>
+                <p className="text-sm text-muted-foreground">20% allocated to public presale</p>
               </div>
             </div>
             <div className="flex items-start gap-4 p-4">

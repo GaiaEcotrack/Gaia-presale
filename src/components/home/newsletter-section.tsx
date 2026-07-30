@@ -1,30 +1,35 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Send, Twitter, MessageCircle, Check } from 'lucide-react'
+import { Send, Twitter, MessageCircle, Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { SOCIAL_LINKS } from '@/lib/constants'
 import { useInView } from '@/hooks/use-animations'
 import { useToast } from '@/hooks/use-toast'
+import { useSubscribe } from '@/hooks/use-subscribe'
 
 export function NewsletterSection() {
-  const [email, setEmail] = useState('')
-  const [isSubscribed, setIsSubscribed] = useState(false)
+  const { email, setEmail, status, errorMessage, subscribe } = useSubscribe()
   const { ref, isInView } = useInView(0.1)
   const { toast } = useToast()
 
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email && email.includes('@')) {
-      setIsSubscribed(true)
+  // Show toast on success or error
+  useEffect(() => {
+    if (status === 'success') {
       toast({
-        title: 'Subscribed!',
+        title: 'Subscribed! 🎉',
         description: 'You will receive our latest updates.',
       })
+    } else if (status === 'error') {
+      toast({
+        title: 'Oops!',
+        description: errorMessage,
+        variant: 'destructive',
+      })
     }
-  }
+  }, [status, errorMessage, toast])
 
   return (
     <section ref={ref} className="py-20 lg:py-32">
@@ -53,8 +58,8 @@ export function NewsletterSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 }}
-              onSubmit={handleSubscribe}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-8"
+              onSubmit={(e) => { e.preventDefault(); subscribe('newsletter') }}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto mb-2"
             >
               <Input
                 type="email"
@@ -62,14 +67,20 @@ export function NewsletterSection() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 flex-1"
-                disabled={isSubscribed}
+                disabled={status === 'loading' || status === 'success'}
               />
-              <Button type="submit" className="h-12 gap-2" disabled={isSubscribed}>
-                {isSubscribed ? (
+              <Button
+                type="submit"
+                className="h-12 gap-2"
+                disabled={status === 'loading' || status === 'success'}
+              >
+                {status === 'success' ? (
                   <>
                     <Check className="w-4 h-4" />
                     Subscribed
                   </>
+                ) : status === 'loading' ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
@@ -78,6 +89,10 @@ export function NewsletterSection() {
                 )}
               </Button>
             </motion.form>
+            {status === 'error' && (
+              <p className="text-destructive text-sm text-center mb-6">{errorMessage}</p>
+            )}
+            {status !== 'error' && <div className="mb-8" />}
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}

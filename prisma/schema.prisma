@@ -30,3 +30,10 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("pre-launch") // "pre-launch" | "newsletter"
+  createdAt DateTime @default(now())
+}

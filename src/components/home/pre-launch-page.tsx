@@ -2,8 +2,10 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
+import { Loader2, CheckCircle2 } from 'lucide-react'
 import { CountdownToStart } from '@/components/shared/countdown-to-start'
 import { usePresaleConfigReadonly } from '@/hooks/use-presale-config'
+import { useSubscribe } from '@/hooks/use-subscribe'
 
 interface PreLaunchPageProps {
   onTransitionComplete?: () => void
@@ -13,6 +15,7 @@ export function PreLaunchPage({ onTransitionComplete }: PreLaunchPageProps) {
   const { isBeforeFirstSale, firstSaleStartDate, formattedFirstSaleDate } = usePresaleConfigReadonly()
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [hasTransitioned, setHasTransitioned] = useState(false)
+  const { email, setEmail, status, errorMessage, subscribe } = useSubscribe()
   
   // Check localStorage for previous transition
   useEffect(() => {
@@ -133,25 +136,48 @@ export function PreLaunchPage({ onTransitionComplete }: PreLaunchPageProps) {
               className="mt-8"
             >
               <div className="max-w-md mx-auto">
-                <p className="text-gray-600 mb-4">
-                  Get notified when we launch
-                </p>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black"
-                  />
-                  <button
-                    type="button"
-                    className="px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
-                  >
-                    Notify Me
-                  </button>
-                </div>
-                <p className="text-gray-500 text-sm mt-2">
-                  We'll only email you about the launch. No spam.
-                </p>
+                {status === 'success' ? (
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" />
+                    <p className="text-gray-700 font-medium">You&apos;re on the list!</p>
+                    <p className="text-gray-500 text-sm">We&apos;ll notify you the moment we launch.</p>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-gray-600 mb-4">
+                      Get notified when we launch
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && subscribe('pre-launch')}
+                        disabled={status === 'loading'}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-black disabled:opacity-60"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => subscribe('pre-launch')}
+                        disabled={status === 'loading'}
+                        className="px-6 py-3 bg-black text-white font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 min-w-[110px]"
+                      >
+                        {status === 'loading' ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          'Notify Me'
+                        )}
+                      </button>
+                    </div>
+                    {status === 'error' && (
+                      <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+                    )}
+                    <p className="text-gray-500 text-sm mt-2">
+                      We&apos;ll only email you about the launch. No spam.
+                    </p>
+                  </>
+                )}
               </div>
             </motion.div>
             

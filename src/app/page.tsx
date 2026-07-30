@@ -2,10 +2,22 @@
 
 import { HeroSection } from '@/components/home/hero-section'
 import { TrustBadges } from '@/components/home/trust-badges'
+import { TwoTokenEcosystem } from '@/components/home/two-token-ecosystem'
+import { RealWorldBacking } from '@/components/home/real-world-backing'
+import { GaiaScarcity } from '@/components/home/gaia-scarcity'
+import { TokenAllocation } from '@/components/home/token-allocation'
+import { ServiceStaking } from '@/components/home/service-staking'
+import { TransferFee } from '@/components/home/transfer-fee'
+import { DeflationaryFlywheel } from '@/components/home/deflationary-flywheel'
+import { LegalFoundation } from '@/components/home/legal-foundation'
+import { InvestmentCase } from '@/components/home/investment-case'
+import { SocialProof } from '@/components/home/social-proof'
+import { KeyDifferentiators } from '@/components/home/key-differentiators'
 import { AboutSection } from '@/components/home/about-section'
 import { TokenomicsPreview } from '@/components/home/tokenomics-preview'
 import { RoadmapPreview } from '@/components/home/roadmap-preview'
 import { HowToBuyPreview } from '@/components/home/how-to-buy-preview'
+import { CtaFinal } from '@/components/home/cta-final'
 import { NewsletterSection } from '@/components/home/newsletter-section'
 import { PresaleWidget } from '@/components/shared/presale-widget'
 
@@ -14,7 +26,18 @@ export default function Home() {
     <>
       <HeroSection />
       <TrustBadges />
-      
+      <TwoTokenEcosystem />
+      <RealWorldBacking />
+      <GaiaScarcity />
+      <TokenAllocation />
+      <ServiceStaking />
+      <TransferFee />
+      <DeflationaryFlywheel />
+      <LegalFoundation />
+      <InvestmentCase />
+      <SocialProof />
+      <KeyDifferentiators />
+
       {/* Presale Widget Section */}
         <section className="py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,6 +122,7 @@ export default function Home() {
       <TokenomicsPreview />
       <RoadmapPreview />
       <HowToBuyPreview />
+      <CtaFinal />
       <NewsletterSection />
     </>
   )

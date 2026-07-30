@@ -7,7 +7,7 @@ import { useInView } from '@/hooks/use-animations'
 const BADGES = [
   { icon: Shield, label: 'Audited by CertiK', description: 'Smart contract security audit' },
   { icon: UserCheck, label: 'KYC Verified', description: 'Team identity verified' },
-  { icon: FileCheck, label: 'Vara Network Partner', description: 'Official ecosystem partner' },
+  { icon: FileCheck, label: 'Solana Partner', description: 'Official ecosystem partner' },
   { icon: Leaf, label: 'Carbon Neutral', description: 'Sustainable blockchain solution' },
 ]
 

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { ArrowRight, Shield, Users, TrendingUp, Clock, Leaf, Rocket } from 'lucide-react'
+import { ArrowRight, Shield, Users, TrendingUp, Clock, Leaf, Rocket, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { CountdownTimer } from '@/components/shared/countdown-timer'
 import { CountdownToStart } from '@/components/shared/countdown-to-start'
@@ -45,7 +45,6 @@ export function HeroSection() {
 
   const handleCountdownStart = () => {
     setIsPresaleStarting(true)
-    // You could trigger a different animation here if needed
   }
 
   const handleParticleComplete = () => {
@@ -60,7 +59,6 @@ export function HeroSection() {
     return () => clearInterval(interval)
   }, [])
 
-  // Determine which countdown to show
   const showStartCountdown = !isPresaleActive && nextStage !== null
   const showEndCountdown = isPresaleActive && activeStage !== null
   const showPresaleEnded = isPresaleEnded
@@ -93,7 +91,7 @@ export function HeroSection() {
             <span className="text-sm font-medium">
               {showStartCountdown ? 'Next Presale Stage Starting Soon' : 
                showEndCountdown ? 'Presale Live - Limited Time' :
-               'Tokenizing Renewable Energy on Vara Network'}
+               'Tokenizing Renewable Energy on Solana'}
             </span>
           </motion.div>
 
@@ -104,9 +102,9 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
           >
-            Transform Clean Energy
+            The Token That Transforms
             <br />
-            <span className="gradient-text">Into Digital Assets</span>
+            <span className="gradient-text">Sunlight into Value</span>
           </motion.h1>
 
           {/* Description */}
@@ -116,9 +114,33 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
-            Gaia Ecotrack tokenizes renewable energy, enabling anyone to participate in the 
-            green economy. Join {investors.toLocaleString()}+ investors building a sustainable future.
+            Dual-token ecosystem on Solana where renewable energy meets real-world utility.
           </motion.p>
+
+          {/* Trust Badges */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="flex flex-wrap items-center justify-center gap-3 mb-10"
+          >
+            {[
+              { icon: Check, label: 'Built on Solana' },
+              { icon: Check, label: 'Dual Token Ecosystem' },
+              { icon: Check, label: 'Renewable Energy Backed' },
+            ].map((badge, index) => (
+              <motion.div
+                key={badge.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted/50 border border-border rounded-full text-sm"
+              >
+                <badge.icon className="w-3.5 h-3.5 text-green-500" />
+                <span>{badge.label}</span>
+              </motion.div>
+            ))}
+          </motion.div>
 
           {/* Countdown Timer Section */}
           <motion.div
