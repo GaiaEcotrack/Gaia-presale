@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { useWallet } from '@/hooks/use-wallet'
 import { TOKEN_CONFIG } from '@/lib/constants'
 import Image from 'next/image'
-import { usePresaleStore } from '@/store/presale-store'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +19,7 @@ import {
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
   { href: '/buy', label: 'Buy Tokens' },
+  { href: '/claim', label: 'Claim Tokens' },
   { href: '/tokenomics', label: 'Tokenomics' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/whitepaper', label: 'Whitepaper' },
@@ -42,11 +42,6 @@ export function Header() {
     copyAddress,
     disconnectWallet,
     connectWallet,
-    setShowWalletModal,
-    showWalletModal,
-    connectors,
-    isCorrectNetwork,
-    switchToMainnet,
   } = useWallet()
 
   useEffect(() => {
@@ -64,9 +59,7 @@ export function Header() {
   }
 
   const handleConnect = () => {
-    if (connectors.length > 0) {
-      connectWallet(connectors[0].id)
-    }
+    connectWallet()
   }
 
   return (
@@ -126,16 +119,6 @@ export function Header() {
             <div className="flex items-center gap-3">
               {isConnected ? (
                 <div className="flex items-center gap-2">
-                  {!isCorrectNetwork && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={switchToMainnet}
-                      className="text-yellow-600 border-yellow-600"
-                    >
-                      Switch Network
-                    </Button>
-                  )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" className="gap-2">
@@ -163,12 +146,15 @@ export function Header() {
                       </div>
                       <DropdownMenuSeparator />
                       <div className="px-3 py-2">
-                        <p className="text-xs text-muted-foreground">Balance</p>
-                        <p className="font-medium">{parseFloat(balance).toFixed(4)} ETH</p>
+                        <p className="text-xs text-muted-foreground">USDC Balance</p>
+                        <p className="font-medium">{balance} USDC</p>
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/buy" className="w-full">Buy Tokens</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/claim" className="w-full">Claim Tokens</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={disconnectWallet} className="text-red-600">
                         <LogOut className="w-4 h-4 mr-2" />

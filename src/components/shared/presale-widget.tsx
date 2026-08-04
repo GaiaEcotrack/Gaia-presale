@@ -1,18 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Wallet, ArrowRight, Loader2, Check, AlertCircle, ChevronDown } from 'lucide-react'
+import { Wallet, ArrowRight, Loader2, Check, ExternalLink, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { useWallet } from '@/hooks/use-wallet'
-import { usePresale } from '@/hooks/use-presale'
-import { useCountdown } from '@/hooks/use-countdown'
-import { TOKEN_CONFIG } from '@/lib/constants'
-import { DEFAULT_PRESALE_STAGES } from '@/config/presale-config'
-import { useReferralStore } from '@/store/presale-store'
 import { useToast } from '@/hooks/use-toast'
+import { getReadProgram } from '@/lib/anchor/program'
+import { fetchConfig, fetchAllRounds } from '@/lib/anchor/fetch'
+import { executeBuy } from '@/lib/anchor/instructions/buy'
+import { PublicKey } from '@solana/web3.js'
+import type { Config, Round } from '@/lib/anchor/config'
 
 interface PresaleWidgetProps {
   compact?: boolean
@@ -22,27 +22,65 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
   const [amount, setAmount] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState<'ETH' | 'USDT'>('ETH')
-  
-  const { isConnected, address, connectWallet, connectors, balance, formatAddress } = useWallet()
-  const { calculateTokens, purchaseTokens, stage, progress, totalRaised, investors, currentPrice } = usePresale()
-  const { referralCode, setReferralCode } = useReferralStore()
+  const [txUrl, setTxUrl] = useState('')
+  const [selectedCurrency, setSelectedCurrency] = useState<'USDC' | 'USDT'>('USDC')
+  const [config, setConfig] = useState<Config | null>(null)
+  const [round, setRound] = useState<Round | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const { isConnected, address, connectWallet, balance } = useWallet()
   const { toast } = useToast()
 
-  const countdown = useCountdown(stage.endDate)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const program = getReadProgram()
+        const fetchedConfig = await fetchConfig(program)
+        setConfig(fetchedConfig)
+        const allRounds = await fetchAllRounds(program)
+        const activeRound = allRounds.find(
+          r => r.status === "Active" && !(fetchedConfig?.paused),
+        )
+        setRound(activeRound ?? null)
+      } catch (err) {
+        console.error('Failed to load presale data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  const pricePerToken = round
+    ? Number(round.price_micro_usd) / 1_000_000
+    : 0
+
+  const tokensAvailable = round
+    ? Number(round.tokens_available - round.tokens_sold)
+    : 0
+
+  const totalTokens = round ? Number(round.tokens_available) : 1
+  const tokensSold = round ? Number(round.tokens_sold) : 0
+  const progress = totalTokens > 0 ? (tokensSold / totalTokens) * 100 : 0
+
+  const calculateTokens = useCallback(
+    (usdAmount: number): number => {
+      if (pricePerToken <= 0) return 0
+      return Math.floor(usdAmount / pricePerToken)
+    },
+    [pricePerToken],
+  )
 
   const tokens = amount ? calculateTokens(parseFloat(amount) || 0) : 0
-  const bonusTokens = referralCode ? Math.floor(tokens * 0.05) : 0
-  const totalTokens = tokens + bonusTokens
 
   const handlePurchase = async () => {
     if (!isConnected) {
-      connectWallet(connectors[0]?.id)
+      connectWallet()
       return
     }
 
-    const ethAmount = parseFloat(amount)
-    if (!ethAmount || ethAmount <= 0) {
+    const usdAmount = parseFloat(amount)
+    if (!usdAmount || usdAmount <= 0) {
       toast({
         title: 'Invalid amount',
         description: 'Please enter a valid amount to purchase.',
@@ -51,20 +89,39 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
       return
     }
 
+    if (!config || !round) {
+      toast({
+        title: 'Loading',
+        description: 'Please wait for presale data to load.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsProcessing(true)
     try {
-      const result = await purchaseTokens(ethAmount)
-      if (result.success) {
-        setShowSuccess(true)
-        setAmount('')
-        toast({
-          title: 'Purchase successful!',
-          description: `You will receive ${totalTokens.toLocaleString()} ${TOKEN_CONFIG.symbol} tokens.`,
-        })
-        setTimeout(() => setShowSuccess(false), 3000)
-      } else {
-        throw new Error(result.error)
-      }
+      const paymentMint = selectedCurrency === 'USDC'
+        ? config.usdc_mint
+        : config.usdt_mint
+
+      const paymentAmount = BigInt(Math.floor(usdAmount * 1_000_000))
+
+      const result = await executeBuy(
+        { publicKey: new PublicKey(address!), signTransaction: (window as any).solana?.signTransaction, signAllTransactions: (window as any).solana?.signAllTransactions } as any,
+        {
+          roundId: round.id,
+          paymentMint,
+          paymentAmount,
+        },
+      )
+
+      setTxUrl(result.explorerUrl)
+      setShowSuccess(true)
+      setAmount('')
+      toast({
+        title: 'Purchase successful!',
+        description: `You will receive ${tokens.toLocaleString()} GAIA tokens.`,
+      })
     } catch (error: any) {
       toast({
         title: 'Transaction failed',
@@ -76,22 +133,48 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
     }
   }
 
-  const quickAmounts = [0.1, 0.5, 1, 5]
+  const quickAmounts = [10, 25, 50, 100]
+
+  if (loading) {
+    return (
+      <div className={`bg-card border border-border rounded-2xl shadow-xl overflow-hidden ${compact ? '' : 'p-6'}`}>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-muted-foreground">Loading presale data...</span>
+        </div>
+      </div>
+    )
+  }
+
+  if (!config || !round) {
+    return (
+      <div className={`bg-card border border-border rounded-2xl shadow-xl overflow-hidden ${compact ? '' : 'p-6'}`}>
+        <div className="flex items-center justify-center py-12">
+          <p className="text-muted-foreground">Presale not initialized on-chain.</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`bg-card border border-border rounded-2xl shadow-xl overflow-hidden ${compact ? '' : 'p-6'}`}>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-lg">Presale {stage.name}</h3>
+          <h3 className="font-semibold text-lg">{round.name || 'Presale Round'}</h3>
           <span className="text-xs bg-black dark:bg-white text-white dark:text-black px-3 py-1 rounded-full">
-            Stage {stage.id}
+            Round {round.id}
           </span>
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>Ends in</span>
-          <span className="font-mono font-medium text-foreground">
-            {countdown.days}d {countdown.hours}h {countdown.minutes}m
+          <span>Status:</span>
+          <span className={`font-medium ${
+            round.status === 'Active' ? 'text-green-600' :
+            round.status === 'Paused' ? 'text-yellow-600' :
+            round.status === 'Ended' ? 'text-red-600' :
+            'text-muted-foreground'
+          }`}>
+            {round.status}
           </span>
         </div>
       </div>
@@ -104,31 +187,31 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
         </div>
         <Progress value={progress} className="h-2" />
         <div className="flex justify-between text-xs text-muted-foreground mt-1">
-          <span>${(totalRaised / 1000000).toFixed(2)}M raised</span>
-          <span>Goal: ${(TOKEN_CONFIG.hardCap / 1000000).toFixed(0)}M</span>
+          <span>{tokensSold.toLocaleString()} tokens sold</span>
+          <span>{totalTokens.toLocaleString()} total</span>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-muted/50 rounded-xl">
         <div className="text-center">
-          <p className="text-lg sm:text-xl font-bold">${currentPrice.toFixed(3)}</p>
+          <p className="text-lg sm:text-xl font-bold">${pricePerToken.toFixed(4)}</p>
           <p className="text-xs text-muted-foreground">Price</p>
         </div>
         <div className="text-center border-x border-border">
-          <p className="text-lg sm:text-xl font-bold">{(investors / 1000).toFixed(1)}K</p>
-          <p className="text-xs text-muted-foreground">Investors</p>
+          <p className="text-lg sm:text-xl font-bold">{tokensAvailable.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">Available</p>
         </div>
         <div className="text-center">
-          <p className="text-lg sm:text-xl font-bold">+{stage.bonus}%</p>
-          <p className="text-xs text-muted-foreground">Bonus</p>
+          <p className="text-lg sm:text-xl font-bold">GAIA</p>
+          <p className="text-xs text-muted-foreground">Token</p>
         </div>
       </div>
 
       {/* Wallet Status */}
       {!isConnected ? (
         <Button
-          onClick={() => connectWallet(connectors[0]?.id)}
+          onClick={connectWallet}
           className="w-full h-14 text-lg gap-2"
           size="lg"
         >
@@ -140,14 +223,14 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
           {/* Currency Selector */}
           <div className="flex gap-2 mb-4">
             <button
-              onClick={() => setSelectedCurrency('ETH')}
+              onClick={() => setSelectedCurrency('USDC')}
               className={`flex-1 py-2 px-4 rounded-lg border text-sm font-medium transition-colors ${
-                selectedCurrency === 'ETH'
+                selectedCurrency === 'USDC'
                   ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white'
                   : 'bg-transparent border-border hover:bg-muted'
               }`}
             >
-              ETH
+              USDC
             </button>
             <button
               onClick={() => setSelectedCurrency('USDT')}
@@ -188,17 +271,6 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
             ))}
           </div>
 
-          {/* Referral Code */}
-          <div className="mb-4">
-            <Input
-              type="text"
-              placeholder="Referral code (optional)"
-              value={referralCode}
-              onChange={(e) => setReferralCode(e.target.value)}
-              className="h-10"
-            />
-          </div>
-
           {/* Token Calculation */}
           {amount && parseFloat(amount) > 0 && (
             <motion.div
@@ -208,18 +280,15 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
             >
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tokens</span>
-                  <span className="font-medium">{tokens.toLocaleString()} {TOKEN_CONFIG.symbol}</span>
+                  <span className="text-muted-foreground">You will receive</span>
+                  <span className="font-medium flex items-center gap-1">
+                    <Coins className="w-4 h-4" />
+                    {tokens.toLocaleString()} GAIA
+                  </span>
                 </div>
-                {bonusTokens > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Referral Bonus</span>
-                    <span className="font-medium text-green-600">+{bonusTokens.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-base pt-2 border-t border-border">
-                  <span className="font-medium">Total</span>
-                  <span className="font-bold">{totalTokens.toLocaleString()} {TOKEN_CONFIG.symbol}</span>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Price per token</span>
+                  <span className="font-medium">${pricePerToken.toFixed(4)}</span>
                 </div>
               </div>
             </motion.div>
@@ -227,7 +296,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
 
           {/* Balance */}
           <div className="flex justify-between text-sm text-muted-foreground mb-4">
-            <span>Balance: {parseFloat(balance).toFixed(4)} {selectedCurrency}</span>
+            <span>Balance: {balance} {selectedCurrency}</span>
             <button
               onClick={() => setAmount(balance)}
               className="hover:text-foreground transition-colors"
@@ -255,11 +324,29 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
               </>
             ) : (
               <>
-                Buy {TOKEN_CONFIG.symbol}
+                Buy GAIA
                 <ArrowRight className="w-5 h-5" />
               </>
             )}
           </Button>
+
+          {/* Transaction Link */}
+          {showSuccess && txUrl && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-4 text-center"
+            >
+              <a
+                href={txUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-500 hover:underline inline-flex items-center gap-1"
+              >
+                View on Explorer <ExternalLink className="w-3 h-3" />
+              </a>
+            </motion.div>
+          )}
         </>
       )}
     </div>

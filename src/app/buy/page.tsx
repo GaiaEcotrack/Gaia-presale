@@ -3,8 +3,7 @@
 import { motion } from 'framer-motion'
 import { PresaleWidget } from '@/components/shared/presale-widget'
 import { TOKEN_CONFIG } from '@/lib/constants'
-import { DEFAULT_PRESALE_STAGES } from '@/config/presale-config'
-import { CreditCard, Building2, Wallet, Shield, Clock, Gift } from 'lucide-react'
+import { Wallet, Shield, Clock, Coins, ExternalLink } from 'lucide-react'
 
 export default function BuyPage() {
   return (
@@ -25,7 +24,7 @@ export default function BuyPage() {
             transition={{ delay: 0.1 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Participate in our token presale and secure your {TOKEN_CONFIG.symbol} tokens at the best price.
+            Participate in our token presale and secure your {TOKEN_CONFIG.symbol} tokens at the best price on Solana.
           </motion.p>
         </div>
       </section>
@@ -42,38 +41,6 @@ export default function BuyPage() {
               className="lg:col-span-2"
             >
               <PresaleWidget />
-              
-              {/* Transaction History */}
-              <div className="mt-8">
-                <h3 className="font-semibold text-lg mb-4">Recent Transactions</h3>
-                <div className="bg-card border border-border rounded-xl overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-muted/50">
-                      <tr>
-                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Address</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Amount</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Tokens</th>
-                        <th className="text-left text-xs font-medium text-muted-foreground p-4">Time</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {[
-                        { address: '0x7a3b...f82c', amount: '1.5 ETH', tokens: '437,500', time: '2 min' },
-                        { address: '0x9d2e...a15b', amount: '0.8 ETH', tokens: '233,333', time: '5 min' },
-                        { address: '0x4c8f...d73a', amount: '3.2 ETH', tokens: '933,333', time: '8 min' },
-                        { address: '0x1e5a...c29d', amount: '0.5 ETH', tokens: '145,833', time: '12 min' },
-                      ].map((tx, i) => (
-                        <tr key={i} className="hover:bg-muted/30 transition-colors">
-                          <td className="p-4 font-mono text-sm">{tx.address}</td>
-                          <td className="p-4 text-sm">{tx.amount}</td>
-                          <td className="p-4 text-sm font-medium">{tx.tokens} {TOKEN_CONFIG.symbol}</td>
-                          <td className="p-4 text-sm text-muted-foreground">{tx.time}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </motion.div>
 
             {/* Sidebar */}
@@ -90,43 +57,51 @@ export default function BuyPage() {
                   <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                     <Wallet className="w-5 h-5" />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">Crypto (ETH/USDT)</p>
-                      <p className="text-xs text-muted-foreground">Direct wallet payment</p>
+                      <p className="font-medium text-sm">USDC</p>
+                      <p className="text-xs text-muted-foreground">SPL Token (Solana)</p>
                     </div>
                     <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
                       Active
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg opacity-50">
-                    <CreditCard className="w-5 h-5" />
+                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <Wallet className="w-5 h-5" />
                     <div className="flex-1">
-                      <p className="font-medium text-sm">Credit Card</p>
-                      <p className="text-xs text-muted-foreground">Coming soon</p>
+                      <p className="font-medium text-sm">USDT</p>
+                      <p className="text-xs text-muted-foreground">SPL Token (Solana)</p>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg opacity-50">
-                    <Building2 className="w-5 h-5" />
-                    <div className="flex-1">
-                      <p className="font-medium text-sm">Bank Transfer</p>
-                      <p className="text-xs text-muted-foreground">Coming soon</p>
-                    </div>
+                    <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 px-2 py-1 rounded-full">
+                      Active
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Bonus Tiers */}
+              {/* Token Info */}
               <div className="bg-card border border-border rounded-xl p-6">
-                <h3 className="font-semibold text-lg mb-4">Bonus Tiers</h3>
+                <h3 className="font-semibold text-lg mb-4">Token Details</h3>
                 <div className="space-y-3">
-                  {DEFAULT_PRESALE_STAGES.map((stage) => (
-                    <div key={stage.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div>
-                        <p className="font-medium text-sm">{stage.name}</p>
-                        <p className="text-xs text-muted-foreground">${stage.price} per token</p>
-                      </div>
-                      <span className="font-bold text-green-600 dark:text-green-400">+{stage.bonus}%</span>
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Network</p>
+                      <p className="text-xs text-muted-foreground">Solana</p>
                     </div>
-                  ))}
+                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded">SOL</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Token Standard</p>
+                      <p className="text-xs text-muted-foreground">SPL Token</p>
+                    </div>
+                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded">SPL</span>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">Decimals</p>
+                      <p className="text-xs text-muted-foreground">9</p>
+                    </div>
+                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded">9</span>
+                  </div>
                 </div>
               </div>
 
@@ -136,15 +111,26 @@ export default function BuyPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Shield className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">Audited by CertiK</span>
+                    <span className="text-sm">Anchor Program (Audited)</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">6-month vesting period</span>
+                    <span className="text-sm">Cliff + Linear Vesting</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Gift className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">5% referral bonus</span>
+                    <Coins className="w-5 h-5 text-green-500" />
+                    <span className="text-sm">USDC/USDT Payments</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <a
+                      href={`https://explorer.solana.com/address/${TOKEN_CONFIG.contractAddress}?cluster=devnet`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3"
+                    >
+                      <ExternalLink className="w-5 h-5 text-blue-500" />
+                      <span className="text-sm text-blue-500 hover:underline">View on Explorer</span>
+                    </a>
                   </div>
                 </div>
               </div>

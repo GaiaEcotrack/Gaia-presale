@@ -3,13 +3,13 @@ export const TOKEN_CONFIG = {
   name: "Gaia Ecotrack",
   symbol: "GAIA",
   totalSupply: 1_000_000_000,
-  decimals: 18,
+  decimals: 6,
   presaleAllocated: 200_000_000, // 20%
   softCap: 500_000, // $500K
   hardCap: 2_500_000, // $2.5M
-  minPurchase: 0.01, // ETH
-  maxPurchase: 50, // ETH
-  contractAddress: "0xGaiaEcotrack123456789abcdef123456789" as `0x${string}`,
+  minPurchase: 10, // USDC
+  maxPurchase: 100_000, // USDC
+  contractAddress: "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24",
   network: "Solana",
 };
 
@@ -250,11 +250,11 @@ export const MOCK_STATS = {
 
 // Network configuration
 export const NETWORK_CONFIG = {
-  chainId: 1, // Ethereum for presale
-  name: "Ethereum",
-  currency: "ETH",
-  rpcUrl: "https://eth.llamarpc.com",
-  blockExplorer: "https://etherscan.io",
+  chainId: 0,
+  name: "Solana Devnet",
+  currency: "SOL",
+  rpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC ?? "https://api.devnet.solana.com",
+  blockExplorer: "https://explorer.solana.com",
   targetNetwork: "Solana",
 };
 
@@ -268,10 +268,8 @@ export const SECURITY_BADGES = [
 
 // Supported wallets
 export const SUPPORTED_WALLETS = [
-  { name: "MetaMask", icon: "/wallets/metamask.svg" },
-  { name: "WalletConnect", icon: "/wallets/walletconnect.svg" },
-  { name: "Trust Wallet", icon: "/wallets/trust.svg" },
-  { name: "Coinbase Wallet", icon: "/wallets/coinbase.svg" },
+  { name: "Phantom", icon: "/wallets/phantom.svg" },
+  { name: "Solflare", icon: "/wallets/solflare.svg" },
 ];
 
 // Gaia specific features

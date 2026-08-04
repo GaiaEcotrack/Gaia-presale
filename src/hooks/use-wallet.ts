@@ -1,27 +1,51 @@
 'use client'
 
 import { useCallback, useState, useEffect } from 'react'
-import { useAccount, useConnect, useDisconnect, useBalance, useSwitchChain } from 'wagmi'
-import { formatEther } from 'viem'
+import { useWallet as useSolanaWallet } from '@solana/wallet-adapter-react'
+import { useConnection } from '@solana/wallet-adapter-react'
+import {
+  getAssociatedTokenAddress,
+  getAccount,
+} from '@solana/spl-token'
+import { PublicKey } from '@solana/web3.js'
+
+const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')
 
 export function useWallet() {
-  const { address, isConnected, chain } = useAccount()
-  const { connectors, connect, isPending: isConnecting, error: connectError } = useConnect()
-  const { disconnect } = useDisconnect()
-  const { data: balance, refetch: refetchBalance } = useBalance({
-    address,
-  })
-  const { switchChain, isPending: isSwitching } = useSwitchChain()
-
+  const { publicKey, connected, connecting, disconnect, select, wallets } = useSolanaWallet()
+  const { connection } = useConnection()
+  const [balance, setBalance] = useState('0')
   const [showWalletModal, setShowWalletModal] = useState(false)
 
-  const connectWallet = useCallback((connectorId?: string) => {
-    const connector = connectors.find((c) => c.id === connectorId) || connectors[0]
-    if (connector) {
-      connect({ connector })
+  const fetchBalance = useCallback(async () => {
+    if (!publicKey) {
+      setBalance('0')
+      return
+    }
+    try {
+      const ata = await getAssociatedTokenAddress(USDC_MINT, publicKey)
+      const account = await getAccount(connection, ata)
+      setBalance((Number(account.amount) / 1e6).toFixed(2))
+    } catch {
+      setBalance('0')
+    }
+  }, [publicKey, connection])
+
+  useEffect(() => {
+    if (connected) {
+      fetchBalance()
+    } else {
+      setBalance('0')
+    }
+  }, [connected, fetchBalance])
+
+  const connectWallet = useCallback(() => {
+    const phantom = wallets.find((w) => w.adapter.name === 'Phantom')
+    if (phantom) {
+      select(phantom.adapter.name)
     }
     setShowWalletModal(false)
-  }, [connectors, connect])
+  }, [wallets, select])
 
   const disconnectWallet = useCallback(() => {
     disconnect()
@@ -32,45 +56,31 @@ export function useWallet() {
   }, [])
 
   const copyAddress = useCallback(() => {
-    if (address) {
-      navigator.clipboard.writeText(address)
+    if (publicKey) {
+      navigator.clipboard.writeText(publicKey.toBase58())
     }
-  }, [address])
+  }, [publicKey])
 
-  // Refetch balance when address changes
-  useEffect(() => {
-    if (address) {
-      refetchBalance()
-    }
-  }, [address, refetchBalance])
-
-  const isCorrectNetwork = chain?.id === 1 // Ethereum mainnet
-
-  const switchToMainnet = useCallback(() => {
-    switchChain?.({ chainId: 1 })
-  }, [switchChain])
-
-  const formattedBalance = balance ? Number(formatEther(balance.value)).toFixed(4) : '0'
+  const address = publicKey?.toBase58() ?? null
+  const isCorrectNetwork = true
 
   return {
-    // State
     address,
-    isConnected,
-    isConnecting,
-    isSwitching,
+    isConnected: connected,
+    isConnecting: connecting,
+    isSwitching: false,
     isCorrectNetwork,
-    balance: formattedBalance,
-    chain,
+    balance,
+    chain: null,
     showWalletModal,
-    connectError,
-    connectors,
+    connectError: null,
+    connectors: [],
 
-    // Actions
     connectWallet,
     disconnectWallet,
     formatAddress,
     copyAddress,
-    switchToMainnet,
+    switchToMainnet: () => {},
     setShowWalletModal,
   }
 }

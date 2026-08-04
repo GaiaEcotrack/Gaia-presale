@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { WagmiProviderWrapper } from "@/components/shared/wagmi-provider";
+import { SolanaWalletProvider } from "@/components/shared/solana-provider";
 import { Header } from "@/components/shared/header";
 import { Footer } from "@/components/shared/footer";
 import { LivePurchases } from "@/components/home/live-purchases";
@@ -56,7 +56,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
       >
-        <WagmiProviderWrapper>
+        <SolanaWalletProvider>
           <LayoutWrapper>
             <div className="min-h-screen flex flex-col">
               <Header />
@@ -68,7 +68,7 @@ export default function RootLayout({
             <LivePurchases />
           </LayoutWrapper>
           <Toaster />
-        </WagmiProviderWrapper>
+        </SolanaWalletProvider>
       </body>
     </html>
   );

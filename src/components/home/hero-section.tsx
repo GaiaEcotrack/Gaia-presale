@@ -20,7 +20,7 @@ import { usePresaleConfigReadonly } from '@/hooks/use-presale-config'
 
 export function HeroSection() {
   const { totalRaised, investors, tokensSold } = usePresaleStore()
-  const { isConnected, connectWallet, connectors } = useWallet()
+  const { isConnected, connectWallet } = useWallet()
   const { ref, isInView } = useInView(0.1)
   
   const { activeStage, nextStage, isPresaleActive, presaleEndDate, nextStageStartDate } = usePresaleConfigReadonly()
@@ -31,9 +31,7 @@ export function HeroSection() {
   const [presaleStatus, setPresaleStatus] = useState(() => getPresaleStatus())
 
   const handleConnect = () => {
-    if (connectors.length > 0) {
-      connectWallet(connectors[0].id)
-    }
+    connectWallet()
   }
 
   const handleCountdownEnd = () => {

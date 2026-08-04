@@ -1,0 +1,2869 @@
+{
+  "address": "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24",
+  "metadata": {
+    "name": "gaia_presale",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "activate_round",
+      "discriminator": [
+        179,
+        179,
+        17,
+        42,
+        181,
+        68,
+        23,
+        123
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The round to activate."
+          ],
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "buy",
+      "discriminator": [
+        102,
+        6,
+        61,
+        18,
+        1,
+        218,
+        235,
+        234
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "docs": [
+            "The buyer wallet. Must sign and pay rent for new PDAs."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The target round. Must be active and within its time window."
+          ],
+          "writable": true
+        },
+        {
+          "name": "buyer_profile",
+          "docs": [
+            "The buyer's profile across all rounds. Created on first purchase."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  101,
+                  114,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "purchase",
+          "docs": [
+            "The individual purchase record. Created for each transaction."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "account",
+                "path": "buyer_profile.purchase_count",
+                "account": "BuyerProfile"
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer_token_account",
+          "docs": [
+            "owner must be a supported token program, mint must match payment_mint,",
+            "and authority must be the buyer signer."
+          ],
+          "writable": true
+        },
+        {
+          "name": "treasury_token_account",
+          "docs": [
+            "owner must be a supported token program, mint must match payment_mint,",
+            "and authority must match the configured treasury."
+          ],
+          "writable": true
+        },
+        {
+          "name": "payment_mint",
+          "docs": [
+            "The payment mint (USDC or USDT). Validated against config."
+          ]
+        },
+        {
+          "name": "gaia_mint",
+          "docs": [
+            "The GAIA token mint. Used to calculate purchased token base units."
+          ]
+        },
+        {
+          "name": "statistics",
+          "docs": [
+            "Global statistics singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  115,
+                  116,
+                  105,
+                  99,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "The SPL Token program."
+          ]
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The System Program."
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "BuyParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "docs": [
+            "The buyer wallet. Must sign to authorize the claim."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton. Contains the GAIA vault reference."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The round this purchase belongs to."
+          ]
+        },
+        {
+          "name": "buyer_profile",
+          "docs": [
+            "The buyer's cross-round profile."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  117,
+                  121,
+                  101,
+                  114,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "purchase",
+          "docs": [
+            "The specific purchase record to claim against."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  117,
+                  114,
+                  99,
+                  104,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "buyer"
+              },
+              {
+                "kind": "account",
+                "path": "purchase.purchase_number",
+                "account": "Purchase"
+              }
+            ]
+          }
+        },
+        {
+          "name": "gaia_vault",
+          "docs": [
+            "handler as a supported token account before checking its token balance."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  97,
+                  105,
+                  97,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer_gaia_account",
+          "docs": [
+            "owner must be a supported token program, mint must match gaia_mint,",
+            "and authority must be the buyer signer."
+          ],
+          "writable": true
+        },
+        {
+          "name": "gaia_mint",
+          "docs": [
+            "The GAIA token mint. Must match the mint configured in the protocol."
+          ]
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "The SPL Token program."
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "clear_legal",
+      "discriminator": [
+        202,
+        239,
+        99,
+        83,
+        206,
+        152,
+        29,
+        72
+      ],
+      "accounts": [
+        {
+          "name": "legal_authority",
+          "docs": [
+            "The legal authority wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_round",
+      "discriminator": [
+        229,
+        218,
+        236,
+        169,
+        231,
+        80,
+        134,
+        112
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton. Validated against admin authority."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The new Round account to initialize. PDA seeded by `[\"round\", &id]`."
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The System Program."
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "CreateRoundParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "end_round",
+      "discriminator": [
+        54,
+        47,
+        1,
+        200,
+        250,
+        6,
+        144,
+        63
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The round to end."
+          ],
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign and pay rent."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton. PDA seeded by `[\"config\"]`."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "statistics",
+          "docs": [
+            "The global Statistics singleton. PDA seeded by `[\"statistics\"]`."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  115,
+                  116,
+                  105,
+                  99,
+                  115
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "gaia_mint",
+          "docs": [
+            "The GAIA token mint, used for validation."
+          ]
+        },
+        {
+          "name": "gaia_vault",
+          "docs": [
+            "The GAIA vault PDA that will hold tokens for claim distribution.",
+            "Owned by the program, seeded by `[\"gaia_vault\"]`."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  97,
+                  105,
+                  97,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdc_mint",
+          "docs": [
+            "The USDC mint, stored for payment validation."
+          ]
+        },
+        {
+          "name": "usdt_mint",
+          "docs": [
+            "The USDT mint, stored for payment validation."
+          ]
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The Solana System Program."
+          ],
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "The SPL Token program (or Token-2022)."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "treasury",
+          "type": "pubkey"
+        },
+        {
+          "name": "tge_timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "legal_authority",
+          "type": "pubkey"
+        },
+        {
+          "name": "compliance_authority",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "pause",
+      "discriminator": [
+        211,
+        22,
+        221,
+        251,
+        74,
+        121,
+        193,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The round to pause."
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "global",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "resume",
+      "discriminator": [
+        1,
+        166,
+        51,
+        170,
+        127,
+        32,
+        141,
+        206
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The round to resume."
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "global",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "update_admin",
+      "discriminator": [
+        161,
+        176,
+        40,
+        213,
+        60,
+        184,
+        179,
+        228
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The current admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_admin",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_round",
+      "discriminator": [
+        226,
+        164,
+        201,
+        88,
+        147,
+        228,
+        236,
+        165
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "round",
+          "docs": [
+            "The Round account to update. Must be in `Upcoming` status."
+          ],
+          "writable": true
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateRoundParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_treasury",
+      "discriminator": [
+        60,
+        16,
+        243,
+        66,
+        96,
+        59,
+        254,
+        131
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "new_treasury",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "verify_buyer",
+      "discriminator": [
+        87,
+        81,
+        22,
+        12,
+        104,
+        254,
+        216,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "compliance_authority",
+          "docs": [
+            "The compliance authority wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "whitelist_entry",
+          "docs": [
+            "The whitelist entry PDA to create."
+          ],
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "docs": [
+            "The System Program."
+          ],
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "round_id",
+          "type": "u8"
+        },
+        {
+          "name": "wallet",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "withdraw",
+      "discriminator": [
+        183,
+        18,
+        70,
+        156,
+        148,
+        109,
+        161,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "docs": [
+            "The admin wallet. Must sign."
+          ],
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "docs": [
+            "The global Config singleton."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "gaia_vault",
+          "docs": [
+            "handler as a token account before checking its balance."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  97,
+                  105,
+                  97,
+                  95,
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "admin_gaia_account",
+          "docs": [
+            "owner must be the admin, mint must match gaia_mint."
+          ],
+          "writable": true
+        },
+        {
+          "name": "gaia_mint",
+          "docs": [
+            "The GAIA token mint. Must match the mint configured in the protocol."
+          ]
+        },
+        {
+          "name": "token_program",
+          "docs": [
+            "The SPL Token program."
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BuyerProfile",
+      "discriminator": [
+        69,
+        227,
+        31,
+        30,
+        144,
+        3,
+        90,
+        252
+      ]
+    },
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Purchase",
+      "discriminator": [
+        33,
+        203,
+        1,
+        252,
+        231,
+        228,
+        8,
+        67
+      ]
+    },
+    {
+      "name": "Round",
+      "discriminator": [
+        87,
+        127,
+        165,
+        51,
+        73,
+        78,
+        116,
+        174
+      ]
+    },
+    {
+      "name": "Statistics",
+      "discriminator": [
+        51,
+        158,
+        85,
+        113,
+        41,
+        45,
+        37,
+        104
+      ]
+    },
+    {
+      "name": "WhitelistEntry",
+      "discriminator": [
+        51,
+        70,
+        173,
+        81,
+        219,
+        192,
+        234,
+        62
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AdminUpdatedEvent",
+      "discriminator": [
+        87,
+        146,
+        113,
+        247,
+        187,
+        52,
+        223,
+        11
+      ]
+    },
+    {
+      "name": "BuyerVerifiedEvent",
+      "discriminator": [
+        0,
+        212,
+        204,
+        159,
+        159,
+        111,
+        158,
+        233
+      ]
+    },
+    {
+      "name": "ClaimEvent",
+      "discriminator": [
+        93,
+        15,
+        70,
+        170,
+        48,
+        140,
+        212,
+        219
+      ]
+    },
+    {
+      "name": "LegalClearedEvent",
+      "discriminator": [
+        1,
+        61,
+        98,
+        153,
+        46,
+        183,
+        145,
+        128
+      ]
+    },
+    {
+      "name": "PausedEvent",
+      "discriminator": [
+        43,
+        14,
+        250,
+        236,
+        116,
+        42,
+        177,
+        89
+      ]
+    },
+    {
+      "name": "PurchaseEvent",
+      "discriminator": [
+        229,
+        118,
+        246,
+        164,
+        59,
+        65,
+        116,
+        254
+      ]
+    },
+    {
+      "name": "ResumeEvent",
+      "discriminator": [
+        97,
+        117,
+        183,
+        115,
+        117,
+        224,
+        8,
+        229
+      ]
+    },
+    {
+      "name": "RoundActivatedEvent",
+      "discriminator": [
+        62,
+        127,
+        248,
+        200,
+        212,
+        143,
+        222,
+        185
+      ]
+    },
+    {
+      "name": "RoundCreatedEvent",
+      "discriminator": [
+        195,
+        1,
+        181,
+        49,
+        230,
+        214,
+        108,
+        180
+      ]
+    },
+    {
+      "name": "RoundEndedEvent",
+      "discriminator": [
+        225,
+        93,
+        137,
+        158,
+        12,
+        107,
+        81,
+        122
+      ]
+    },
+    {
+      "name": "TreasuryUpdatedEvent",
+      "discriminator": [
+        140,
+        91,
+        97,
+        30,
+        246,
+        205,
+        211,
+        33
+      ]
+    },
+    {
+      "name": "WithdrawGaiaEvent",
+      "discriminator": [
+        132,
+        95,
+        93,
+        76,
+        124,
+        164,
+        212,
+        32
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Unauthorized",
+      "msg": "Unauthorized"
+    },
+    {
+      "code": 6001,
+      "name": "PresalePaused",
+      "msg": "Presale is paused"
+    },
+    {
+      "code": 6002,
+      "name": "RoundNotActive",
+      "msg": "Round is not active"
+    },
+    {
+      "code": 6003,
+      "name": "RoundNotStarted",
+      "msg": "Round has not started"
+    },
+    {
+      "code": 6004,
+      "name": "RoundEnded",
+      "msg": "Round has ended"
+    },
+    {
+      "code": 6005,
+      "name": "RoundSoldOut",
+      "msg": "Round is sold out"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidPaymentMint",
+      "msg": "Invalid payment mint"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidRound",
+      "msg": "Invalid round"
+    },
+    {
+      "code": 6008,
+      "name": "NothingToClaim",
+      "msg": "Nothing to claim"
+    },
+    {
+      "code": 6009,
+      "name": "MathOverflow",
+      "msg": "Math overflow"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientFunds",
+      "msg": "Insufficient funds"
+    },
+    {
+      "code": 6011,
+      "name": "WhitelistRequired",
+      "msg": "Whitelist required"
+    },
+    {
+      "code": 6012,
+      "name": "AlreadyInitialized",
+      "msg": "Already initialized"
+    },
+    {
+      "code": 6013,
+      "name": "RoundAlreadyStarted",
+      "msg": "Round already started"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidTimeRange",
+      "msg": "Invalid time range"
+    },
+    {
+      "code": 6015,
+      "name": "ZeroAmount",
+      "msg": "Zero amount not allowed"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidAuthority",
+      "msg": "Invalid authority"
+    },
+    {
+      "code": 6017,
+      "name": "InvalidPurchaseLimits",
+      "msg": "Invalid purchase limits"
+    },
+    {
+      "code": 6018,
+      "name": "InvalidVestingSchedule",
+      "msg": "Invalid vesting schedule"
+    },
+    {
+      "code": 6019,
+      "name": "PurchaseTooSmall",
+      "msg": "Purchase amount below minimum"
+    },
+    {
+      "code": 6020,
+      "name": "PurchaseTooLarge",
+      "msg": "Purchase amount above maximum"
+    },
+    {
+      "code": 6021,
+      "name": "WalletLimitExceeded",
+      "msg": "Wallet purchase limit exceeded"
+    },
+    {
+      "code": 6022,
+      "name": "InvalidRoundStatus",
+      "msg": "Invalid round status for this operation"
+    },
+    {
+      "code": 6023,
+      "name": "VaultInsufficientFunds",
+      "msg": "GAIA vault insufficient funds"
+    },
+    {
+      "code": 6024,
+      "name": "LegalNotCleared",
+      "msg": "Legal clearance required"
+    },
+    {
+      "code": 6025,
+      "name": "NotLegalAuthority",
+      "msg": "Not legal authority"
+    },
+    {
+      "code": 6026,
+      "name": "BuyerNotWhitelisted",
+      "msg": "Buyer not whitelisted"
+    },
+    {
+      "code": 6027,
+      "name": "NotComplianceAuthority",
+      "msg": "Not compliance authority"
+    },
+    {
+      "code": 6028,
+      "name": "BuyerAlreadyWhitelisted",
+      "msg": "Buyer already whitelisted"
+    },
+    {
+      "code": 6029,
+      "name": "InsufficientVaultBalance",
+      "msg": "Insufficient vault balance"
+    }
+  ],
+  "types": [
+    {
+      "name": "AdminUpdatedEvent",
+      "docs": [
+        "Emitted when the admin authority is updated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that performed the update."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "old_admin",
+            "docs": [
+              "The previous admin wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "new_admin",
+            "docs": [
+              "The new admin wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the update."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyParams",
+      "docs": [
+        "Parameters for a buy instruction."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "payment_amount",
+            "docs": [
+              "Amount of USDC/USDT to spend (in smallest units)."
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyerProfile",
+      "docs": [
+        "Per-wallet profile that aggregates activity across all rounds.",
+        "",
+        "One PDA per wallet, created on the first purchase."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet address of the buyer."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "total_purchased",
+            "docs": [
+              "Total GAIA tokens purchased across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_claimed",
+            "docs": [
+              "Total GAIA tokens claimed across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_paid",
+            "docs": [
+              "Total USD value paid across all purchases (in micro-USD)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "purchase_count",
+            "docs": [
+              "Number of individual Purchase PDAs owned by this wallet."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "created_at",
+            "docs": [
+              "Unix timestamp when this profile was created."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for this buyer profile."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BuyerVerifiedEvent",
+      "docs": [
+        "Emitted when a buyer is verified for whitelist access."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "The compliance authority that verified the buyer."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet that was verified."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round ID (0 = all rounds)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the verification."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ClaimEvent",
+      "docs": [
+        "Emitted when a user claims vested GAIA tokens."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet claiming tokens."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "purchase_number",
+            "docs": [
+              "The purchase number being claimed against."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "claimed_amount",
+            "docs": [
+              "The amount of GAIA tokens claimed in this transaction."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the claim."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Config",
+      "docs": [
+        "Global protocol configuration. Singleton account — one per program deployment.",
+        "",
+        "Stores admin authority, supported mints, vesting TGE reference,",
+        "aggregate counters, and pause state."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin pubkey authorized to manage rounds and protocol settings."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "The treasury wallet that receives USDC/USDT payments directly."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "gaia_mint",
+            "docs": [
+              "The GAIA token mint address."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_mint",
+            "docs": [
+              "The accepted USDC mint address."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "usdt_mint",
+            "docs": [
+              "The accepted USDT mint address."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "tge_timestamp",
+            "docs": [
+              "Token Generation Event timestamp. All vesting schedules are relative to this."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "current_round",
+            "docs": [
+              "The current active round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "total_tokens_sold",
+            "docs": [
+              "Cumulative GAIA tokens sold across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_usdc_raised",
+            "docs": [
+              "Cumulative USDC raised across all rounds (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_usdt_raised",
+            "docs": [
+              "Cumulative USDT raised across all rounds (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "docs": [
+              "Whether the entire presale is paused."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "gaia_vault",
+            "docs": [
+              "The GAIA vault PDA that holds tokens for claim distribution."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "legal_authority",
+            "docs": [
+              "The legal authority wallet that can clear purchases to begin."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "legal_cleared",
+            "docs": [
+              "Whether legal clearance has been granted. Required before any purchase."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "compliance_authority",
+            "docs": [
+              "The compliance authority wallet that can verify buyers for whitelist."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for the Config account."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "gaia_vault_bump",
+            "docs": [
+              "PDA bump for the GAIA vault account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateRoundParams",
+      "docs": [
+        "Parameters for creating a new round."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "Human-readable round name."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "Price per 1 GAIA token in micro-USD."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "tokens_available",
+            "docs": [
+              "Total GAIA tokens available for sale."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "docs": [
+              "Unix timestamp when the round opens."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "Unix timestamp when the round closes."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "cliff_seconds",
+            "docs": [
+              "Seconds after TGE before claims unlock (cliff)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "vesting_duration_seconds",
+            "docs": [
+              "Total vesting duration in seconds after cliff."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "minimum_purchase",
+            "docs": [
+              "Minimum payment amount per transaction (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "maximum_purchase",
+            "docs": [
+              "Maximum payment amount per transaction (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "maximum_per_wallet",
+            "docs": [
+              "Maximum total spend per wallet in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "whitelist_enabled",
+            "docs": [
+              "Whether whitelist verification is required."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "round_type",
+            "docs": [
+              "Type of round (seed or public)."
+            ],
+            "type": {
+              "defined": {
+                "name": "RoundType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "LegalClearedEvent",
+      "docs": [
+        "Emitted when legal clearance is granted to begin purchases."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "legal_authority",
+            "docs": [
+              "The legal authority that granted clearance."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the clearance."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PausedEvent",
+      "docs": [
+        "Emitted when a presale round is paused."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that paused the round."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round that was paused (0 = global pause)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the pause."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Purchase",
+      "docs": [
+        "An immutable record of a single token purchase transaction.",
+        "",
+        "One PDA per purchase, seeded by wallet address and sequential purchase number."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet that made this purchase."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round this purchase belongs to."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "purchase_number",
+            "docs": [
+              "Sequential purchase number for this wallet (matches BuyerProfile.purchase_count at creation)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "payment_amount",
+            "docs": [
+              "USDC/USDT amount paid in smallest units."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "payment_mint",
+            "docs": [
+              "The payment mint used (USDC or USDT pubkey)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "token_amount",
+            "docs": [
+              "Amount of GAIA tokens purchased."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "claimed_amount",
+            "docs": [
+              "GAIA tokens already claimed from this purchase."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "Price per token at time of purchase (micro-USD), stored for historical auditing."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the purchase."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for this purchase account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PurchaseEvent",
+      "docs": [
+        "Emitted when a user purchases GAIA tokens in a presale round."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet that made the purchase."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "purchase_number",
+            "docs": [
+              "Sequential purchase number for this wallet."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "payment_mint",
+            "docs": [
+              "The payment mint used (USDC or USDT)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "payment_amount",
+            "docs": [
+              "The amount of USDC/USDT paid (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "token_amount",
+            "docs": [
+              "The amount of GAIA tokens purchased."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "The price per token at time of purchase (micro-USD)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the purchase."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ResumeEvent",
+      "docs": [
+        "Emitted when a presale round is resumed."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that resumed the round."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round that was resumed (0 = global resume)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the resume."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Round",
+      "docs": [
+        "Represents a single presale round with its parameters and state.",
+        "",
+        "One PDA per round, seeded by the round `id`."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "docs": [
+              "Unique round identifier (0–255)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "docs": [
+              "Human-readable round name."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "Price per 1 GAIA token in micro-USD (1 USD = 1_000_000)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "tokens_available",
+            "docs": [
+              "Total GAIA tokens available for sale in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "tokens_sold",
+            "docs": [
+              "GAIA tokens already sold in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "docs": [
+              "Unix timestamp when the round opens for purchases."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "Unix timestamp when the round closes."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "cliff_seconds",
+            "docs": [
+              "Seconds after TGE before claims are allowed (cliff period)."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "vesting_duration_seconds",
+            "docs": [
+              "Total seconds over which tokens vest after the cliff."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "minimum_purchase",
+            "docs": [
+              "Minimum USDC/USDT payment amount per transaction (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "maximum_purchase",
+            "docs": [
+              "Maximum USDC/USDT payment amount per single transaction (in smallest units)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "maximum_per_wallet",
+            "docs": [
+              "Maximum total USDC/USDT a single wallet can spend in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "whitelist_enabled",
+            "docs": [
+              "Whether whitelist verification is required to participate."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "round_type",
+            "docs": [
+              "Type of round (seed or public)."
+            ],
+            "type": {
+              "defined": {
+                "name": "RoundType"
+              }
+            }
+          },
+          {
+            "name": "status",
+            "docs": [
+              "Current lifecycle status of the round."
+            ],
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for this round account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundActivatedEvent",
+      "docs": [
+        "Emitted when an upcoming round is activated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that activated the round."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the activation."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundCreatedEvent",
+      "docs": [
+        "Emitted when a new presale round is created."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "docs": [
+              "The round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "docs": [
+              "Human-readable round name."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "Price per token in micro-USD."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "tokens_available",
+            "docs": [
+              "Total tokens available in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "start_time",
+            "docs": [
+              "Unix timestamp when the round starts."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "Unix timestamp when the round ends."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "round_type",
+            "docs": [
+              "Type of round (seed or public)."
+            ],
+            "type": {
+              "defined": {
+                "name": "RoundType"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundEndedEvent",
+      "docs": [
+        "Emitted when a round is ended prematurely."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_id",
+            "docs": [
+              "The round identifier."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "name",
+            "docs": [
+              "Human-readable round name."
+            ],
+            "type": "string"
+          },
+          {
+            "name": "tokens_sold",
+            "docs": [
+              "Total GAIA tokens sold in this round."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the end."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundStatus",
+      "docs": [
+        "Lifecycle status of a presale round."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Upcoming"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Paused"
+          },
+          {
+            "name": "Ended"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundType",
+      "docs": [
+        "Type of presale round (seed vs public)."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Seed"
+          },
+          {
+            "name": "Public"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Statistics",
+      "docs": [
+        "Global protocol statistics. Singleton account — one per program deployment.",
+        "",
+        "Aggregated counters to avoid scanning thousands of accounts from the frontend."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "total_buyers",
+            "docs": [
+              "Total unique wallets that have made at least one purchase."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_transactions",
+            "docs": [
+              "Total number of individual purchase transactions."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_usd_micro",
+            "docs": [
+              "Total USD value raised across all rounds (in micro-USD)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "seed_sold",
+            "docs": [
+              "Total GAIA tokens sold in seed rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "public_sold",
+            "docs": [
+              "Total GAIA tokens sold in public rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "total_volume",
+            "docs": [
+              "Total GAIA tokens sold across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for the statistics account."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TreasuryUpdatedEvent",
+      "docs": [
+        "Emitted when the treasury wallet is updated."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that updated the treasury."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "old_treasury",
+            "docs": [
+              "The previous treasury wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "new_treasury",
+            "docs": [
+              "The new treasury wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the update."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateRoundParams",
+      "docs": [
+        "Parameters for updating a round."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "docs": [
+              "New round name (optional)."
+            ],
+            "type": {
+              "option": "string"
+            }
+          },
+          {
+            "name": "price_micro_usd",
+            "docs": [
+              "New price per token in micro-USD (optional)."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "tokens_available",
+            "docs": [
+              "New tokens available (optional)."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "start_time",
+            "docs": [
+              "New start time (optional)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "end_time",
+            "docs": [
+              "New end time (optional)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "cliff_seconds",
+            "docs": [
+              "New cliff seconds (optional)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "vesting_duration_seconds",
+            "docs": [
+              "New vesting duration (optional)."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "minimum_purchase",
+            "docs": [
+              "New minimum purchase (optional)."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "maximum_purchase",
+            "docs": [
+              "New maximum purchase (optional)."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "maximum_per_wallet",
+            "docs": [
+              "New maximum per wallet (optional)."
+            ],
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "whitelist_enabled",
+            "docs": [
+              "New whitelist flag (optional)."
+            ],
+            "type": {
+              "option": "bool"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WhitelistEntry",
+      "docs": [
+        "Represents a buyer verified for whitelist access in a specific round."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "docs": [
+              "The wallet that was verified."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "round_id",
+            "docs": [
+              "The round ID this entry applies to (0 = all rounds)."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "authority",
+            "docs": [
+              "The compliance authority that verified this wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "verified_at",
+            "docs": [
+              "Unix timestamp when the verification was made."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "docs": [
+              "PDA bump for this whitelist entry."
+            ],
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawGaiaEvent",
+      "docs": [
+        "Emitted when GAIA tokens are withdrawn from the vault by the admin."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "The admin that withdrew tokens."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "The amount of GAIA tokens withdrawn."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "docs": [
+              "Unix timestamp of the withdrawal."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ]
+}
