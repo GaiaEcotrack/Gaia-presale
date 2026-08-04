@@ -9,7 +9,7 @@ export const TOKEN_CONFIG = {
   hardCap: 2_500_000, // $2.5M
   minPurchase: 10, // USDC
   maxPurchase: 100_000, // USDC
-  contractAddress: "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24",
+  contractAddress: "5aXDAUUjG8HbZ8YXmrPx5kA9U1usqiyKSFhL4eY3bwLS",
   network: "Solana",
 };
 

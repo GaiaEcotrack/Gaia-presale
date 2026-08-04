@@ -1,6 +1,6 @@
 import type { PublicKey } from "@solana/web3.js";
 
-export const PROGRAM_ID = "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24" as const;
+export const PROGRAM_ID = "5aXDAUUjG8HbZ8YXmrPx5kA9U1usqiyKSFhL4eY3bwLS" as const;
 
 export const CLUSTER = "devnet" as const;
 

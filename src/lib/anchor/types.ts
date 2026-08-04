@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/gaia_presale.json`.
  */
 export type GaiaPresale = {
-  "address": "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24",
+  "address": "5aXDAUUjG8HbZ8YXmrPx5kA9U1usqiyKSFhL4eY3bwLS",
   "metadata": {
     "name": "gaiaPresale",
     "version": "0.1.0",
@@ -2631,6 +2631,13 @@ export type GaiaPresale = {
             "name": "totalVolume",
             "docs": [
               "Total GAIA tokens sold across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "totalTokensClaimed",
+            "docs": [
+              "Total GAIA tokens claimed by buyers across all rounds."
             ],
             "type": "u64"
           },

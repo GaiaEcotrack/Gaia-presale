@@ -88,7 +88,7 @@ export function ClaimWidget() {
       setSuccessId(claimKey)
       toast({
         title: 'Claim successful!',
-        description: `You claimed ${(Number(p.vesting.claimable) / 1e9).toLocaleString()} GAIA tokens.`,
+        description: `You claimed ${(Number(p.vesting.claimable) / 1e6).toLocaleString()} GAIA tokens.`,
       })
       loadData()
     } catch (error: any) {
@@ -146,15 +146,15 @@ export function ClaimWidget() {
         <h3 className="font-semibold text-lg mb-4">Claim Summary</h3>
         <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-xl">
           <div className="text-center">
-            <p className="text-xl font-bold">{(Number(totalPurchased) / 1e9).toLocaleString()}</p>
+            <p className="text-xl font-bold">{(Number(totalPurchased) / 1e6).toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">Total Purchased</p>
           </div>
           <div className="text-center border-x border-border">
-            <p className="text-xl font-bold text-green-600">{(Number(totalClaimed) / 1e9).toLocaleString()}</p>
+            <p className="text-xl font-bold text-green-600">{(Number(totalClaimed) / 1e6).toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">Claimed</p>
           </div>
           <div className="text-center">
-            <p className="text-xl font-bold text-blue-600">{(Number(totalClaimable) / 1e9).toLocaleString()}</p>
+            <p className="text-xl font-bold text-blue-600">{(Number(totalClaimable) / 1e6).toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">Available</p>
           </div>
         </div>
@@ -193,7 +193,7 @@ export function ClaimWidget() {
                     <div>
                       <p className="font-medium">{p.round.name || `Round #${p.round.id}`}</p>
                       <p className="text-xs text-muted-foreground">
-                        Purchased: {(Number(p.vesting.total) / 1e9).toLocaleString()} GAIA
+                        Purchased: {(Number(p.vesting.total) / 1e6).toLocaleString()} GAIA
                       </p>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
@@ -211,7 +211,7 @@ export function ClaimWidget() {
                     <Progress value={p.vesting.vestedFraction * 100} className="h-2" />
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
                       <span>Vested: {(p.vesting.vestedFraction * 100).toFixed(1)}%</span>
-                      <span>{(Number(p.vesting.claimed) / 1e9).toLocaleString()} / {(Number(p.vesting.total) / 1e9).toLocaleString()} claimed</span>
+                      <span>{(Number(p.vesting.claimed) / 1e6).toLocaleString()} / {(Number(p.vesting.total) / 1e6).toLocaleString()} claimed</span>
                     </div>
                   </div>
 
@@ -219,11 +219,11 @@ export function ClaimWidget() {
                   <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Coins className="w-3 h-3" />
-                      Claimable: {(Number(p.vesting.claimable) / 1e9).toLocaleString()} GAIA
+                      Claimable: {(Number(p.vesting.claimable) / 1e6).toLocaleString()} GAIA
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Clock className="w-3 h-3" />
-                      Pending: {(Number(p.vesting.pending) / 1e9).toLocaleString()} GAIA
+                      Pending: {(Number(p.vesting.pending) / 1e6).toLocaleString()} GAIA
                     </div>
                   </div>
 
@@ -246,7 +246,7 @@ export function ClaimWidget() {
                       </>
                     ) : p.vesting.claimable > 0n ? (
                       <>
-                        Claim {(Number(p.vesting.claimable) / 1e9).toLocaleString()} GAIA
+                        Claim {(Number(p.vesting.claimable) / 1e6).toLocaleString()} GAIA
                         <ArrowRight className="w-4 h-4" />
                       </>
                     ) : !p.vesting.cliffPassed ? (

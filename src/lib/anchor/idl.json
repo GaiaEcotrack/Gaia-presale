@@ -1,5 +1,5 @@
 {
-  "address": "6Pez7dr7vaZdxtgbsboLT3FmVDaS4JgqJE7AquoXmF24",
+  "address": "5aXDAUUjG8HbZ8YXmrPx5kA9U1usqiyKSFhL4eY3bwLS",
   "metadata": {
     "name": "gaia_presale",
     "version": "0.1.0",
@@ -405,6 +405,32 @@
             "and authority must be the buyer signer."
           ],
           "writable": true
+        },
+        {
+          "name": "statistics",
+          "docs": [
+            "Global statistics singleton."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  115,
+                  116,
+                  105,
+                  99,
+                  115
+                ]
+              }
+            ]
+          }
         },
         {
           "name": "gaia_mint",
@@ -1192,6 +1218,31 @@
           "docs": [
             "The SPL Token program."
           ]
+        },
+        {
+          "name": "statistics",
+          "docs": [
+            "Global statistics singleton."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  116,
+                  97,
+                  116,
+                  105,
+                  115,
+                  116,
+                  105,
+                  99,
+                  115
+                ]
+              }
+            ]
+          }
         }
       ],
       "args": [
@@ -1590,6 +1641,16 @@
       "code": 6029,
       "name": "InsufficientVaultBalance",
       "msg": "Insufficient vault balance"
+    },
+    {
+      "code": 6030,
+      "name": "LegalAlreadyCleared",
+      "msg": "Legal clearance already granted"
+    },
+    {
+      "code": 6031,
+      "name": "SameAuthority",
+      "msg": "Same authority"
     }
   ],
   "types": [
@@ -1737,7 +1798,7 @@
           {
             "name": "round_id",
             "docs": [
-              "The round ID (0 = all rounds)."
+              "The round ID (255 = all rounds)."
             ],
             "type": "u8"
           },
@@ -2629,6 +2690,13 @@
             "type": "u64"
           },
           {
+            "name": "total_tokens_claimed",
+            "docs": [
+              "Total GAIA tokens claimed by buyers across all rounds."
+            ],
+            "type": "u64"
+          },
+          {
             "name": "bump",
             "docs": [
               "PDA bump for the statistics account."
@@ -2805,7 +2873,7 @@
           {
             "name": "round_id",
             "docs": [
-              "The round ID this entry applies to (0 = all rounds)."
+              "The round ID this entry applies to (255 = all rounds)."
             ],
             "type": "u8"
           },

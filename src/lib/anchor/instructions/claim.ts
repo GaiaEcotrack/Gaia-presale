@@ -16,6 +16,7 @@ import {
   findBuyerProfilePda,
   findPurchasePda,
   findGaiaVaultPda,
+  findStatisticsPda,
 } from "../pda";
 import { fetchConfig, fetchRound, fetchBuyerProfile, fetchPurchase } from "../fetch";
 import { CLUSTER } from "../config";
@@ -55,6 +56,7 @@ export async function executeClaim(
   const buyerProfilePda = findBuyerProfilePda(buyer, programId);
   const purchasePda = findPurchasePda(buyer, input.purchaseNumber, programId);
   const gaiaVaultPda = findGaiaVaultPda(programId);
+  const statisticsPda = findStatisticsPda(programId);
 
   const buyerGaiaAccount = await getAssociatedTokenAddress(
     config.gaia_mint,
@@ -86,6 +88,7 @@ export async function executeClaim(
       purchase: purchasePda,
       gaiaVault: gaiaVaultPda,
       buyerGaiaAccount,
+      statistics: statisticsPda,
       gaiaMint: config.gaia_mint,
       tokenProgram: TOKEN_PROGRAM_ID,
     })

@@ -56,11 +56,11 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
     : 0
 
   const tokensAvailable = round
-    ? Number(round.tokens_available - round.tokens_sold)
+    ? Number(round.tokens_available - round.tokens_sold) / 1e6
     : 0
 
-  const totalTokens = round ? Number(round.tokens_available) : 1
-  const tokensSold = round ? Number(round.tokens_sold) : 0
+  const totalTokens = round ? Number(round.tokens_available) / 1e6 : 1
+  const tokensSold = round ? Number(round.tokens_sold) / 1e6 : 0
   const progress = totalTokens > 0 ? (tokensSold / totalTokens) * 100 : 0
 
   const calculateTokens = useCallback(
