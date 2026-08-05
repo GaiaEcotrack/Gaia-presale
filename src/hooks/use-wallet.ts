@@ -12,7 +12,7 @@ import { PublicKey } from '@solana/web3.js'
 const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')
 
 export function useWallet() {
-  const { publicKey, connected, connecting, disconnect, select, wallets } = useSolanaWallet()
+  const { publicKey, connected, connecting, disconnect, select, wallets, sendTransaction } = useSolanaWallet()
   const { connection } = useConnection()
   const [balance, setBalance] = useState('0')
   const [showWalletModal, setShowWalletModal] = useState(false)
@@ -82,5 +82,6 @@ export function useWallet() {
     copyAddress,
     switchToMainnet: () => {},
     setShowWalletModal,
+    sendTransaction,
   }
 }

@@ -7,8 +7,9 @@ import {
 import {
   SystemProgram,
   type TransactionInstruction,
-  Transaction,
   type PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 import type { WalletContextState } from "@solana/wallet-adapter-react";
@@ -34,18 +35,30 @@ export async function executeBuy(
   input: BuyInput,
 ): Promise<{ signature: string; explorerUrl: string }> {
   if (!wallet.publicKey) throw new Error("Wallet not connected");
-  if (!wallet.signTransaction) throw new Error("Wallet does not support signing");
+  if (!wallet.sendTransaction) throw new Error("Wallet does not support sendTransaction");
 
   const buyer: PublicKey = wallet.publicKey;
   const program = getProgramForWallet(wallet);
   const connection = getConnection();
   const programId = program.programId;
 
-  const config = await fetchConfig(program);
+  console.log(`[BUY] RPC: ${connection.rpcEndpoint}`);
+  console.log(`[BUY] Program ID: ${programId.toBase58()}`);
+
+  const buyerProfilePda = findBuyerProfilePda(buyer, programId);
+
+  console.time("fetch-data");
+  const [config, round, buyerProfile, { blockhash, lastValidBlockHeight }] =
+    await Promise.all([
+      fetchConfig(program),
+      fetchRound(program, input.roundId),
+      fetchBuyerProfile(program, buyer).catch(() => null),
+      connection.getLatestBlockhash("confirmed"),
+    ]);
+  console.timeEnd("fetch-data");
+
   if (!config) throw new Error("Protocol not initialized");
   if (config.paused) throw new Error("Protocol is paused");
-
-  const round = await fetchRound(program, input.roundId);
   if (!round) throw new Error(`Round ${input.roundId} not found`);
 
   const mintStr = input.paymentMint.toBase58();
@@ -56,18 +69,10 @@ export async function executeBuy(
     throw new Error("Invalid payment mint (must be USDC or USDT)");
   }
 
-  const buyerProfilePda = findBuyerProfilePda(buyer, programId);
-  const statisticsPda = findStatisticsPda(programId);
-
-  let purchaseCount = 0n;
-  try {
-    const profile = await fetchBuyerProfile(program, buyer);
-    purchaseCount = profile?.purchase_count ?? 0n;
-  } catch {
-    // First purchase
-  }
+  const purchaseCount = buyerProfile?.purchase_count ?? 0n;
 
   const purchasePda = findPurchasePda(buyer, purchaseCount, programId);
+  const statisticsPda = findStatisticsPda(programId);
 
   const buyerTokenAccount = await getAssociatedTokenAddress(
     input.paymentMint,
@@ -80,10 +85,12 @@ export async function executeBuy(
 
   const preInstructions: TransactionInstruction[] = [];
 
+  console.time("fetch-ata-info");
   const [buyerAtaInfo, treasuryAtaInfo] = await Promise.all([
     connection.getAccountInfo(buyerTokenAccount),
     connection.getAccountInfo(treasuryTokenAccount),
   ]);
+  console.timeEnd("fetch-ata-info");
 
   if (!buyerAtaInfo) {
     preInstructions.push(
@@ -111,6 +118,7 @@ export async function executeBuy(
     );
   }
 
+  console.time("build-transaction");
   const buyIx = await program.methods
     .buy({ paymentAmount: new BN(input.paymentAmount.toString()) })
     .accounts({
@@ -130,20 +138,36 @@ export async function executeBuy(
     .instruction();
 
   const allInstructions = [...preInstructions, buyIx];
-  const { blockhash, lastValidBlockHeight } =
-    await connection.getLatestBlockhash("confirmed");
-  const transaction = new Transaction({
-    feePayer: buyer,
-    blockhash,
-    lastValidBlockHeight,
-  }).add(...allInstructions);
+  const messageV0 = new TransactionMessage({
+    payerKey: buyer,
+    recentBlockhash: blockhash,
+    instructions: allInstructions,
+  }).compileToV0Message();
+  const transaction = new VersionedTransaction(messageV0);
+  console.timeEnd("build-transaction");
 
-  const signed = await wallet.signTransaction(transaction);
-  const signature = await connection.sendRawTransaction(signed.serialize());
+  console.log(`[BUY] Instructions: ${allInstructions.length}`);
+  console.log(`[BUY] Compiled accounts: ${messageV0.staticAccountKeys.length}`);
+  console.log(`[BUY] Transaction size: ${transaction.serialize().length} bytes`);
+
+  console.time("wallet-send");
+  let signature: string;
+  try {
+    signature = await wallet.sendTransaction(transaction, connection);
+  } catch (err) {
+    console.error("[BUY] sendTransaction error:", err);
+    throw err;
+  }
+  console.timeEnd("wallet-send");
+
+  console.time("confirm-transaction");
   await connection.confirmTransaction(
     { signature, blockhash, lastValidBlockHeight },
     "confirmed",
   );
+  console.timeEnd("confirm-transaction");
+
+  console.log(`[BUY] Signature: ${signature}`);
 
   return {
     signature,

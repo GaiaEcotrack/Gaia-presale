@@ -28,7 +28,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
   const [round, setRound] = useState<Round | null>(null)
   const [loading, setLoading] = useState(true)
 
-  const { isConnected, address, connectWallet, balance } = useWallet()
+  const { isConnected, address, connectWallet, balance, sendTransaction } = useWallet()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -107,7 +107,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
       const paymentAmount = BigInt(Math.floor(usdAmount * 1_000_000))
 
       const result = await executeBuy(
-        { publicKey: new PublicKey(address!), signTransaction: (window as any).solana?.signTransaction, signAllTransactions: (window as any).solana?.signAllTransactions } as any,
+        { publicKey: new PublicKey(address!), sendTransaction, signTransaction: (window as any).solana?.signTransaction, signAllTransactions: (window as any).solana?.signAllTransactions } as any,
         {
           roundId: round.id,
           paymentMint,
