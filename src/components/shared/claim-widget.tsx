@@ -109,7 +109,10 @@ export function ClaimWidget() {
     }
   }
 
-  const totalClaimable = purchases.reduce((sum, p) => sum + p.vesting.claimable, 0n)
+  const totalClaimable = purchases.reduce((sum, p) => {
+    const roundEnded = p.round.status === 'Ended' || Math.floor(Date.now() / 1000) > Number(p.round.end_time)
+    return roundEnded ? sum + p.vesting.claimable : sum
+  }, 0n)
   const totalClaimed = purchases.reduce((sum, p) => sum + p.vesting.claimed, 0n)
   const totalPurchased = purchases.reduce((sum, p) => sum + p.vesting.total, 0n)
 
@@ -180,7 +183,8 @@ export function ClaimWidget() {
               const claimKey = `${p.purchase.round_id}-${p.purchase.purchase_number}`
               const isClaiming = claimingId === claimKey
               const isSuccess = successId === claimKey
-              const canClaim = p.vesting.claimable > 0n && !isClaiming
+              const roundEnded = p.round.status === 'Ended' || Math.floor(Date.now() / 1000) > Number(p.round.end_time)
+              const canClaim = p.vesting.claimable > 0n && !isClaiming && roundEnded
 
               return (
                 <motion.div
@@ -197,11 +201,13 @@ export function ClaimWidget() {
                       </p>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
+                      !roundEnded ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600' :
                       p.vesting.fullyUnlocked ? 'bg-green-100 dark:bg-green-900/30 text-green-600' :
                       p.vesting.cliffPassed ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600' :
                       'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600'
                     }`}>
-                      {p.vesting.fullyUnlocked ? 'Fully Unlocked' :
+                      {!roundEnded ? 'Round Active' :
+                       p.vesting.fullyUnlocked ? 'Fully Unlocked' :
                        p.vesting.cliffPassed ? 'Vesting' : 'Cliff Active'}
                     </span>
                   </div>
@@ -249,6 +255,8 @@ export function ClaimWidget() {
                         Claim {(Number(p.vesting.claimable) / 1e6).toLocaleString()} GAIA
                         <ArrowRight className="w-4 h-4" />
                       </>
+                    ) : !roundEnded ? (
+                      'Round not ended yet'
                     ) : !p.vesting.cliffPassed ? (
                       'Cliff not reached'
                     ) : (
