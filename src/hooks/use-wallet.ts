@@ -9,7 +9,7 @@ import {
 } from '@solana/spl-token'
 import { PublicKey } from '@solana/web3.js'
 
-const USDC_MINT = new PublicKey('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')
+const USDC_MINT = new PublicKey('x8RWxebgaMKuwx5sT2BBWHcBHSquwXxbqFCZL5dbxbR')
 
 export function useWallet() {
   const { publicKey, connected, connecting, disconnect, select, wallets, sendTransaction } = useSolanaWallet()
