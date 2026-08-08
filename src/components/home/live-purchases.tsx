@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Wallet } from 'lucide-react'
 import { TOKEN_CONFIG } from '@/lib/constants'
 
-// Mock purchase data
+// Mock purchase data — formato Solana + USDC
 const MOCK_PURCHASES = [
-  { address: '0x7a3b...f82c', amount: '1.5 ETH', tokens: '437,500', time: '2 min ago' },
-  { address: '0x9d2e...a15b', amount: '0.8 ETH', tokens: '233,333', time: '5 min ago' },
-  { address: '0x4c8f...d73a', amount: '3.2 ETH', tokens: '933,333', time: '8 min ago' },
-  { address: '0x1e5a...c29d', amount: '0.5 ETH', tokens: '145,833', time: '12 min ago' },
-  { address: '0x8b7c...e46f', amount: '2.1 ETH', tokens: '612,500', time: '15 min ago' },
+  { address: '7a3b...f82c', amount: '150 USDC', tokens: '437,500', time: '2 min ago' },
+  { address: '9d2e...a15b', amount: '80 USDC', tokens: '233,333', time: '5 min ago' },
+  { address: '4c8f...d73a', amount: '320 USDC', tokens: '933,333', time: '8 min ago' },
+  { address: '1e5a...c29d', amount: '50 USDC', tokens: '145,833', time: '12 min ago' },
+  { address: '8b7c...e46f', amount: '210 USDC', tokens: '612,500', time: '15 min ago' },
 ]
 
 export function LivePurchases() {

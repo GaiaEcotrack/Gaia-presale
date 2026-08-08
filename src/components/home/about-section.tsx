@@ -63,11 +63,17 @@ export function AboutSection() {
             </p>
             <ul className="space-y-3">
               {['Limited access to carbon markets', 'No transparency in energy tracking', 
-                'Small producers excluded from benefits', 'Complex verification processes'].map((item) => (
-                <li key={item} className="flex items-center gap-3 text-muted-foreground">
+                'Small producers excluded from benefits', 'Complex verification processes'].map((item, i) => (
+                <motion.li
+                  key={item}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.3 + i * 0.08 }}
+                  className="flex items-center gap-3 text-muted-foreground"
+                >
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
           </motion.div>
@@ -91,11 +97,17 @@ export function AboutSection() {
               their energy and participate in the global green economy.
             </p>
             <ul className="space-y-3">
-              {BENEFITS.slice(0, 4).map((item) => (
-                <li key={item} className="flex items-center gap-3 text-muted-foreground">
+              {BENEFITS.slice(0, 4).map((item, i) => (
+                <motion.li
+                  key={item}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
+                  className="flex items-center gap-3 text-muted-foreground"
+                >
                   <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                   {item}
-                </li>
+                </motion.li>
               ))}
             </ul>
           </motion.div>
@@ -121,7 +133,8 @@ export function AboutSection() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-              className="bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-shadow"
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6 transition-all duration-300"
             >
               <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-4">
                 <feature.icon className="w-6 h-6" />

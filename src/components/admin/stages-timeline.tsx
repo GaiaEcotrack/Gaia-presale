@@ -26,17 +26,17 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
   }
   
   const handleDelete = (stageId: number, stageName: string) => {
-    if (confirm(`¿Estás seguro de que quieres eliminar el stage "${stageName}"?`)) {
+    if (confirm(`Are you sure you want to delete the stage "${stageName}"?`)) {
       try {
         removeStage(stageId)
         toast({
-          title: 'Stage eliminado',
-          description: `El stage "${stageName}" ha sido eliminado.`,
+          title: 'Stage deleted',
+          description: `The stage "${stageName}" has been deleted.`,
         })
       } catch (error) {
         toast({
           title: 'Error',
-          description: 'No se pudo eliminar el stage.',
+          description: 'Could not delete the stage.',
           variant: 'destructive'
         })
       }
@@ -44,11 +44,11 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
   }
   
   const handleReset = () => {
-    if (confirm('¿Estás seguro de que quieres resetear toda la configuración a los valores por defecto?')) {
+    if (confirm('Are you sure you want to reset all settings to default values?')) {
       resetToDefault()
       toast({
-        title: 'Configuración reseteada',
-        description: 'Todos los stages han sido restaurados a los valores por defecto.',
+        title: 'Settings reset',
+        description: 'All stages have been restored to default values.',
       })
     }
   }
@@ -58,25 +58,25 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Timeline de Stages</h3>
+          <h3 className="text-lg font-semibold">Stages Timeline</h3>
           <p className="text-sm text-muted-foreground">
-            {config.stages.length} stages configurados • {activeStage ? 'Presale activo' : 'Presale inactivo'}
+            {config.stages.length} stages configured • {activeStage ? 'Presale active' : 'Presale inactive'}
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleReset}>
-            Resetear a Default
+            Reset to Default
           </Button>
           <Button size="sm" onClick={onAddStage} className="gap-2">
             <Plus className="w-4 h-4" />
-            Agregar Stage
+            Add Stage
           </Button>
         </div>
       </div>
       
       {/* Timeline */}
       <div className="relative">
-        {/* Línea de tiempo */}
+        {/* Timeline line */}
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-border" />
         
         {/* Stages */}
@@ -94,7 +94,7 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                 transition={{ delay: index * 0.1 }}
                 className="relative"
               >
-                {/* Punto en la línea */}
+                {/* Point on the line */}
                 <div className="absolute left-6 -translate-x-1/2">
                   <div className={`
                     w-4 h-4 rounded-full border-4
@@ -104,7 +104,7 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                   `} />
                 </div>
                 
-                {/* Card del stage */}
+                {/* Stage card */}
                 <div className="ml-12 bg-card border border-border rounded-xl p-5">
                   <div className="flex items-start justify-between mb-4">
                     <div>
@@ -113,19 +113,19 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                         {isActive && (
                           <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-medium px-2 py-1 rounded-full">
                             <CheckCircle className="w-3 h-3" />
-                            Activo
+                            Active
                           </span>
                         )}
                         {isPast && (
                           <span className="inline-flex items-center gap-1 bg-gray-500/10 text-gray-600 dark:text-gray-400 text-xs font-medium px-2 py-1 rounded-full">
                             <Clock className="w-3 h-3" />
-                            Finalizado
+                            Completed
                           </span>
                         )}
                         {isFuture && (
                           <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-medium px-2 py-1 rounded-full">
                             <Clock className="w-3 h-3" />
-                            Próximo
+                            Upcoming
                           </span>
                         )}
                       </div>
@@ -167,7 +167,7 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <DollarSign className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Precio</span>
+                        <span className="text-sm text-muted-foreground">Price</span>
                       </div>
                       <p className="font-bold">${stage.price.toFixed(3)}</p>
                     </div>
@@ -191,7 +191,7 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-1">
                         <Package className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Vendido</span>
+                        <span className="text-sm text-muted-foreground">Sold</span>
                       </div>
                       <p className="font-bold">{((stage.sold / stage.supply) * 100).toFixed(1)}%</p>
                     </div>
@@ -200,7 +200,7 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                   {/* Progress bar */}
                   <div className="mb-2">
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Progreso</span>
+                      <span className="text-muted-foreground">Progress</span>
                       <span className="font-medium">{((stage.sold / stage.supply) * 100).toFixed(1)}%</span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -211,11 +211,11 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
                     </div>
                   </div>
                   
-                  {/* Detalles adicionales */}
+                  {/* Additional details */}
                   <div className="text-sm text-muted-foreground">
-                    <p>Compra mínima: {stage.minPurchase} ETH</p>
-                    <p>Tokens disponibles: {(stage.supply - stage.sold).toLocaleString()}</p>
-                    <p>Duración: {Math.ceil((stage.endDate.getTime() - stage.startDate.getTime()) / (1000 * 60 * 60 * 24))} días</p>
+                    <p>Minimum purchase: {stage.minPurchase} USDC</p>
+                    <p>Tokens available: {(stage.supply - stage.sold).toLocaleString()}</p>
+                    <p>Duration: {Math.ceil((stage.endDate.getTime() - stage.startDate.getTime()) / (1000 * 60 * 60 * 24))} days</p>
                   </div>
                 </div>
               </motion.div>
@@ -224,22 +224,22 @@ export function StagesTimeline({ onEditStage, onAddStage }: StagesTimelineProps)
         </div>
       </div>
       
-      {/* Resumen */}
+      {/* Summary */}
       <div className="bg-muted/30 rounded-xl p-5">
-        <h4 className="font-semibold mb-3">Resumen de Configuración</h4>
+        <h4 className="font-semibold mb-3">Configuration Summary</h4>
         <div className="grid md:grid-cols-3 gap-4">
           <div>
-            <p className="text-sm text-muted-foreground">Stages Totales</p>
+            <p className="text-sm text-muted-foreground">Total Stages</p>
             <p className="text-2xl font-bold">{config.stages.length}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Stage Activo</p>
-            <p className="text-2xl font-bold">{activeStage?.name || 'Ninguno'}</p>
+            <p className="text-sm text-muted-foreground">Active Stage</p>
+            <p className="text-2xl font-bold">{activeStage?.name || 'None'}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Próximo Stage</p>
+            <p className="text-sm text-muted-foreground">Next Stage</p>
             <p className="text-2xl font-bold">
-              {config.stages.find(s => now < s.startDate)?.name || 'Ninguno'}
+              {config.stages.find(s => now < s.startDate)?.name || 'None'}
             </p>
           </div>
         </div>

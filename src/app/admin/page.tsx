@@ -165,7 +165,7 @@ const [endDate, setEndDate] = useState(
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="settings" className="gap-2">
             <Settings className="w-4 h-4" />
-            Configuración
+            Settings
           </TabsTrigger>
           <TabsTrigger value="stages" className="gap-2">
             <List className="w-4 h-4" />
@@ -173,22 +173,22 @@ const [endDate, setEndDate] = useState(
           </TabsTrigger>
           <TabsTrigger value="stats" className="gap-2">
             <Calendar className="w-4 h-4" />
-            Estadísticas
+            Statistics
           </TabsTrigger>
         </TabsList>
 
-        {/* Configuración */}
+        {/* Settings */}
         <TabsContent value="settings">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-card border border-border rounded-2xl p-6"
           >
-            <h2 className="text-xl font-semibold mb-6">Configuración del Presale</h2>
+            <h2 className="text-xl font-semibold mb-6">Presale Settings</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="price">Precio del Token (USD)</Label>
+                <Label htmlFor="price">Token Price (USD)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -200,7 +200,7 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label htmlFor="stage">Nombre del Stage</Label>
+                <Label htmlFor="stage">Stage Name</Label>
                 <Input
                   id="stage"
                   type="text"
@@ -211,7 +211,7 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label htmlFor="endDate">Fecha de Fin del Stage</Label>
+                <Label htmlFor="endDate">Stage End Date</Label>
                 <Input
                   id="endDate"
                   type="date"
@@ -222,13 +222,13 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label>Estado del Stage</Label>
+                <Label>Stage Status</Label>
                 <div className="flex items-center gap-3 mt-3">
                   <Switch
                     checked={active}
                     onCheckedChange={setActive}
                   />
-                  <span className="text-sm">{active ? 'Activo' : 'Inactivo'}</span>
+                  <span className="text-sm">{active ? 'Active' : 'Inactive'}</span>
                 </div>
               </div>
             </div>
@@ -236,11 +236,11 @@ const [endDate, setEndDate] = useState(
             <div className="flex gap-4 mt-6">
               <Button onClick={handleSave} className="gap-2">
                 <Save className="w-4 h-4" />
-                Guardar Cambios
+                Save Changes
               </Button>
               <Button variant="outline" className="gap-2">
                 <RefreshCw className="w-4 h-4" />
-                Sincronizar Datos
+                Sync Data
               </Button>
             </div>
           </motion.div>
@@ -260,18 +260,18 @@ const [endDate, setEndDate] = useState(
           </motion.div>
         </TabsContent>
 
-        {/* Estadísticas */}
+        {/* Statistics */}
         <TabsContent value="stats">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-card border border-border rounded-2xl p-6"
           >
-            <h2 className="text-xl font-semibold mb-6">Actualización Manual de Estadísticas</h2>
+            <h2 className="text-xl font-semibold mb-6">Manual Statistics Update</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="totalRaised">Total Recaudado (USD)</Label>
+                <Label htmlFor="totalRaised">Total Raised (USD)</Label>
                 <Input
                   id="totalRaised"
                   type="number"
@@ -281,7 +281,7 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label htmlFor="investors">Cantidad de Inversores</Label>
+                <Label htmlFor="investors">Number of Investors</Label>
                 <Input
                   id="investors"
                   type="number"
@@ -291,7 +291,7 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label htmlFor="tokensSold">Tokens Vendidos</Label>
+                <Label htmlFor="tokensSold">Tokens Sold</Label>
                 <Input
                   id="tokensSold"
                   type="number"
@@ -301,7 +301,7 @@ const [endDate, setEndDate] = useState(
               </div>
 
               <div>
-                <Label htmlFor="countdown">Fecha del Countdown</Label>
+                <Label htmlFor="countdown">Countdown Date</Label>
                 <Input
                   id="countdown"
                   type="datetime-local"
@@ -313,7 +313,7 @@ const [endDate, setEndDate] = useState(
 
             <Button className="mt-6 gap-2">
               <Save className="w-4 h-4" />
-              Actualizar Estadísticas
+              Update Statistics
             </Button>
           </motion.div>
         </TabsContent>
@@ -343,9 +343,9 @@ const [endDate, setEndDate] = useState(
               </thead>
               <tbody>
                 {[
-                  { hash: '0x7a3b...f82c', address: '0x7a3b...f82c', amount: '1.5 ETH', tokens: '437,500', time: '2 min' },
-                  { hash: '0x9d2e...a15b', address: '0x9d2e...a15b', amount: '0.8 ETH', tokens: '233,333', time: '5 min' },
-                  { hash: '0x4c8f...d73a', address: '0x4c8f...d73a', amount: '3.2 ETH', tokens: '933,333', time: '8 min' },
+                  { hash: '7a3b...f82c', address: '7a3b...f82c', amount: '150 USDC', tokens: '437,500', time: '2 min' },
+                  { hash: '9d2e...a15b', address: '9d2e...a15b', amount: '80 USDC', tokens: '233,333', time: '5 min' },
+                  { hash: '4c8f...d73a', address: '4c8f...d73a', amount: '320 USDC', tokens: '933,333', time: '8 min' },
                 ].map((tx, i) => (
                   <tr key={i} className="border-b border-border">
                     <td className="p-3 font-mono text-sm">{tx.hash}</td>

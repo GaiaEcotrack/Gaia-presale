@@ -1,0 +1,6 @@
+**Team Lead — Gaia Ecotrack**
+
+Full Stack Developer y Blockchain Engineer con experiencia en el desarrollo de soluciones Web3, especializado en **Solana, Rust, Anchor, TypeScript y arquitecturas backend/frontend**. Como Team Lead de **Gaia Ecotrack**, lidero la definición técnica y el desarrollo del ecosistema, coordinando la implementación de smart contracts, tokenomics, presale, seguridad y arquitectura de la plataforma.
+
+Cuento con experiencia trabajando en proyectos blockchain y aplicaciones full stack, participando en el diseño, desarrollo, testing, auditoría de seguridad y despliegue de soluciones descentralizadas. Mi enfoque combina **liderazgo técnico, arquitectura de software y desarrollo hands-on**, buscando construir productos escalables, seguros y preparados para producción.
+https://www.linkedin.com/in/jose-nicolas-villagra

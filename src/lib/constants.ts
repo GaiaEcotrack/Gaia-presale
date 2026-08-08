@@ -13,219 +13,73 @@ export const TOKEN_CONFIG = {
   network: "Solana",
 };
 
-// Presale stages - Movido a src/config/presale-config.ts
-// Importar desde: import { DEFAULT_PRESALE_STAGES } from '@/config/presale-config'
+// Presale stages - Moved to src/config/presale-config.ts
+// Import from: import { DEFAULT_PRESALE_STAGES } from '@/config/presale-config'
 
-// Tokenomics allocation
+// Tokenomics allocation — Colors: PDF §2.9.3
 export const TOKENOMICS = {
-  ecosystem: { percentage: 25, label: "Ecosystem Treasury", color: "#525252" },
-  team: { percentage: 20, label: "Team & Founders", color: "#737373" },
-  presale: { percentage: 20, label: "Public Presale", color: "#171717" },
-  liquidity: { percentage: 15, label: "DEX Liquidity", color: "#404040" },
-  staking: { percentage: 10, label: "Staking Rewards", color: "#a3a3a3" },
-  seed: { percentage: 10, label: "Seed Investors", color: "#d4d4d4" },
+  ecosystem: { percentage: 25, label: "Treasury / Ecosystem", color: "#737373" },
+  team: { percentage: 20, label: "Team & Founders", color: "#00468C" },
+  presale: { percentage: 20, label: "Public Presale", color: "#FF8C00" },
+  liquidity: { percentage: 15, label: "DEX Liquidity", color: "#7C3AED" },
+  staking: { percentage: 10, label: "Staking & Rewards", color: "#EAB308" },
+  seed: { percentage: 10, label: "Seed Investors", color: "#007820" },
 };
 
-// Roadmap phases
-export const ROADMAP_PHASES = [
-  {
-    id: 1,
-    phase: "2023–2026",
-    title: "Phase 0 — Validation & Legal Shield",
-    description: "12-project pilot (150 kW); Solana migration; 6+ MW in onboarding; legal opinions from SFC, CREG and DIAN; MoU with authorized trader and carbon operator.",
-    milestones: [
-      "12-project pilot (150 kW)",
-      "Solana migration",
-      "6+ MW in onboarding",
-      "Legal opinions from SFC, CREG and DIAN",
-      "MoU with authorized trader and carbon operator",
-    ],
-    completed: true,
-  },
-  {
-    id: 2,
-    phase: "2026–2027",
-    title: "Phase 1 — Launch & Consolidation",
-    description: "Token Launch (GAIA & GAIA-E) — September 2026. Commercial launch of platform 2.0. Distributor integration. I-REC module. First proprietary mini solar farm (1 MW).",
-    milestones: [
-      "Token Launch (GAIA & GAIA-E) — September 2026",
-      "Commercial launch of platform 2.0",
-      "Distributor integration",
-      "I-REC module",
-      "First proprietary mini solar farm (1 MW)",
-    ],
-    completed: false,
-    current: true,
-  },
-  {
-    id: 3,
-    phase: "2028–2030",
-    title: "Phase 2 — LATAM Expansion",
-    description: "Regional expansion with presence in Chile (350 MW), Mexico (350 MW), Brazil (350 MW) and Peru (150 MW).",
-    milestones: [
-      "Chile (350 MW)",
-      "Mexico (350 MW)",
-      "Brazil (350 MW)",
-      "Peru (150 MW)",
-    ],
-    completed: false,
-  },
-  {
-    id: 4,
-    phase: "2030–2035",
-    title: "Phase 3 — Global Expansion & DAO",
-    description: "Expansion to Southeast Asia (250 MW), Africa (200 MW) and Europe (150 MW). DAO activation (mid-2030).",
-    milestones: [
-      "Southeast Asia (250 MW)",
-      "Africa (200 MW)",
-      "Europe (150 MW)",
-      "DAO activation (mid-2030)",
-    ],
-    completed: false,
-  },
-  {
-    id: 5,
-    phase: "2035",
-    title: "Global Target",
-    description: "2,000 MW tokenized. 100,000 self-generators. 9 operational countries. $18M USD annual revenue.",
-    milestones: [
-      "2,000 MW tokenized",
-      "100,000 self-generators",
-      "9 operational countries",
-      "$18M USD annual revenue",
-    ],
-    completed: false,
-  },
-];
+// Roadmap phases — Source: PDF §2.10.3 Cuadro 2.12
+export { ROADMAP_DATA as ROADMAP_PHASES } from '@/data/roadmap';
 
-// Team members
+// Team members — Source: PDF §2.11.3 Cuadro 2.14
 export const TEAM_MEMBERS = [
   {
     id: 1,
-    name: "María García",
-    role: "CEO & Co-Founder",
-    bio: "Environmental engineer with 10+ years in renewable energy projects and sustainable development.",
-    linkedin: "#",
-    twitter: "#",
+    name: "Ilich Blanco",
+    role: "CEO & Founder",
+    bio: "Project Manager and technical orchestrator with over a decade of experience structuring technological business models. Specialist in team leadership and Web3 solution architecture.",
+    photo: "/team/ilich-blanco.jpg",
+    linkedin: "https://www.linkedin.com/in/ilichblanco",
+    twitter: null,
   },
   {
     id: 2,
-    name: "Carlos Rodríguez",
-    role: "CTO & Co-Founder",
-    bio: "Blockchain architect specialized in Rust and Solana program development. Former tech lead at major energy companies.",
-    linkedin: "#",
-    twitter: "#",
+    name: "Diego Rosas",
+    role: "CTO",
+    bio: "Blockchain Development (Rust, Solana), IoT Architecture.",
+    photo: null,
+    linkedin: null,
+    twitter: null,
   },
   {
     id: 3,
-    name: "Ana Martínez",
-    role: "Head of Sustainability",
-    bio: "Climate scientist and carbon markets expert with experience in UN environmental programs.",
-    linkedin: "#",
-    twitter: "#",
+    name: "Julián Vélez",
+    role: "CGO",
+    bio: "Believes firmly in energy democratization. Mission: act as the great nexus — connecting technology with renewable energy generation clients, weaving alliances with public entities and participating in technology and energy sector forums.",
+    photo: "/team/julian-velez.jpeg",
+    linkedin: "https://www.linkedin.com/in/jvgaiaecotrack890130",
+    twitter: null,
   },
   {
     id: 4,
-    name: "Diego López",
-    role: "Lead Developer",
-    bio: "Full-stack developer with expertise in smart contracts and DeFi protocols on Solana.",
-    linkedin: "#",
-    twitter: "#",
-  },
-  {
-    id: 5,
-    name: "Laura Sánchez",
-    role: "CMO",
-    bio: "Marketing specialist with successful launches of sustainable tech projects and green initiatives.",
-    linkedin: "#",
-    twitter: "#",
-  },
-  {
-    id: 6,
-    name: "Pablo Fernández",
-    role: "Community Manager",
-    bio: "Web3 community builder with experience managing crypto communities across Latin America.",
-    linkedin: "#",
-    twitter: "#",
+    name: "José Nicolás Villagra",
+    role: "Team Lead",
+    bio: "Full Stack Developer and Blockchain Engineer specialized in Solana, Rust, Anchor, TypeScript. Leads technical definition and ecosystem development, coordinating smart contract implementation, tokenomics, presale, security and platform architecture.",
+    photo: "/team/nicolas-villagra.jpeg",
+    linkedin: "https://www.linkedin.com/in/jose-nicolas-villagra",
+    twitter: null,
   },
 ];
 
-// Advisors
-export const ADVISORS = [
-  {
-    id: 1,
-    name: "Roberto Chen",
-    role: "Strategic Advisor",
-    bio: "Former Director of Renewable Energy at World Bank. Expert in sustainable finance.",
-    linkedin: "#",
-  },
-  {
-    id: 2,
-    name: "Elena Torres",
-    role: "Technical Advisor",
-    bio: "Core contributor to Solana ecosystem. Blockchain infrastructure expert.",
-    linkedin: "#",
-  },
-  {
-    id: 3,
-    name: "Andrés Molina",
-    role: "Business Advisor",
-    bio: "Serial entrepreneur in clean tech. Founded multiple successful green energy startups.",
-    linkedin: "#",
-  },
-];
+// Advisors — No confirmed data in PDF
+export const ADVISORS: Array<{
+  id: number;
+  name: string;
+  role: string;
+  bio: string;
+  linkedin: string | null;
+}> = [];
 
-// FAQ data
-export const FAQ_DATA = [
-  {
-    id: 1,
-    question: "What is Gaia Ecotrack?",
-    answer: "Gaia Ecotrack is a pioneering platform that tokenizes renewable energy. We enable users with solar panels or other renewable energy systems to convert each kilowatt-hour produced into GAIA tokens that can be exchanged, sold in P2P markets, or used to obtain carbon credits.",
-    category: "general",
-  },
-  {
-    id: 2,
-    question: "How does energy tokenization work?",
-    answer: "Through smart contracts on Solana, Gaia Ecotrack verifies energy production from connected renewable sources (solar panels, wind turbines, etc.) and mints GAIA tokens for each verified kWh. This creates a transparent and traceable record of clean energy generation.",
-    category: "technical",
-  },
-  {
-    id: 3,
-    question: "What can I do with GAIA tokens?",
-    answer: "GAIA tokens can be traded on secondary markets, used to purchase carbon credits, exchanged for other cryptocurrencies, or held for potential appreciation. They represent proof of renewable energy generation and support the green economy.",
-    category: "tokens",
-  },
-  {
-    id: 4,
-    question: "Why is Gaia built on Solana?",
-    answer: "Solana provides the ideal infrastructure for Gaia with its high throughput, low fees, and energy-efficient consensus mechanism. This aligns perfectly with our mission of promoting sustainable blockchain solutions.",
-    category: "technical",
-  },
-  {
-    id: 5,
-    question: "How do I participate in the presale?",
-    answer: "Simply connect your Web3 wallet, enter the amount you wish to invest, and confirm the transaction. After the presale, you'll be able to claim your GAIA tokens. Make sure to have ETH or USDT in your wallet.",
-    category: "presale",
-  },
-  {
-    id: 6,
-    question: "What is the minimum investment?",
-    answer: "The minimum investment varies by stage. Currently, the minimum is 0.5 ETH for the Private Sale stage. Check the presale widget for the most current requirements.",
-    category: "investment",
-  },
-  {
-    id: 7,
-    question: "When will I receive my tokens?",
-    answer: "Tokens will be distributed within 48 hours after each presale stage concludes. A portion will be unlocked immediately (25% at TGE), with the rest following a 6-month vesting schedule.",
-    category: "tokens",
-  },
-  {
-    id: 8,
-    question: "Is there a referral program?",
-    answer: "Yes! We offer a 5% bonus in GAIA tokens for both referrer and referee. Share your unique referral link after connecting your wallet to participate.",
-    category: "bonus",
-  },
-];
+// FAQ data — Source: PDF §2.12.2 Cuadro 2.15
+export { FAQ_DATA } from '@/data/faq';
 
 // Social links
 export const SOCIAL_LINKS = {
@@ -258,18 +112,19 @@ export const NETWORK_CONFIG = {
   targetNetwork: "Solana",
 };
 
-// Security badges
+// Security badges — Verifiable or removed per PDF §1.3.2
 export const SECURITY_BADGES = [
-  { name: "Audited by CertiK", icon: "shield-check" },
-  { name: "KYC Verified", icon: "user-check" },
-  { name: "Solana Partner", icon: "file-check" },
-  { name: "Carbon Neutral", icon: "leaf" },
+  { name: "Audit in Progress", icon: "shield-check" },
+  { name: "Verified Team", icon: "user-check" },
+  { name: "Built on Solana", icon: "file-check" },
+  { name: "Renewable Energy", icon: "leaf" },
 ];
 
-// Supported wallets
+// Supported wallets — Solana wallets
 export const SUPPORTED_WALLETS = [
   { name: "Phantom", icon: "/wallets/phantom.svg" },
   { name: "Solflare", icon: "/wallets/solflare.svg" },
+  { name: "Backpack", icon: "/wallets/backpack.svg" },
 ];
 
 // Gaia specific features

@@ -65,7 +65,7 @@ export function CtaFinal() {
               {link.available ? (
                 <Link
                   href={link.href}
-                  className="block bg-card border border-border rounded-2xl p-6 text-center hover:shadow-lg transition-shadow"
+                  className="block bg-card border border-border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                 >
                   <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
                     <link.icon className="w-7 h-7" />
@@ -94,9 +94,21 @@ export function CtaFinal() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-center py-16 lg:py-20 bg-muted/30 border-y border-border"
+          className="relative text-center py-16 lg:py-20 bg-muted/30 border-y border-border overflow-hidden"
         >
-          <p className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+          {/* Animated gradient glow */}
+          <motion.div
+            animate={{
+              background: [
+                'radial-gradient(ellipse at 20% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
+                'radial-gradient(ellipse at 80% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
+                'radial-gradient(ellipse at 20% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
+              ],
+            }}
+            transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          />
+          <p className="relative text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
             Gaia Ecotrack is not just a token.
             <br />
             <span className="gradient-text">It&apos;s the infrastructure for a decentralized energy future.</span>

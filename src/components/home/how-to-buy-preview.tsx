@@ -11,31 +11,19 @@ const STEPS = [
     icon: Wallet,
     step: '01',
     title: 'Create Wallet',
-    description: 'Download MetaMask or your preferred Web3 wallet and create a new wallet.',
+    description: 'Download Phantom or Solflare and create a new wallet on Solana.',
   },
   {
     icon: CreditCard,
     step: '02',
     title: 'Fund Wallet',
-    description: 'Purchase ETH from an exchange and transfer it to your wallet address.',
+    description: 'Purchase USDC or SOL from an exchange and transfer it to your wallet.',
   },
   {
     icon: Link2,
     step: '03',
-    title: 'Connect Wallet',
-    description: 'Connect your wallet to our platform using the "Connect Wallet" button.',
-  },
-  {
-    icon: Coins,
-    step: '04',
-    title: 'Buy Tokens',
-    description: 'Enter the amount of ETH you want to invest and confirm the transaction.',
-  },
-  {
-    icon: Gift,
-    step: '05',
-    title: 'Claim Tokens',
-    description: 'After the presale ends, claim your tokens using our claim portal.',
+    title: 'Connect & Buy',
+    description: 'Connect your wallet to our platform and confirm the USDC purchase.',
   },
 ]
 
@@ -57,7 +45,7 @@ export function HowToBuyPreview() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {STEPS.map((step, index) => (
             <motion.div
               key={step.step}
@@ -66,7 +54,7 @@ export function HowToBuyPreview() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative"
             >
-              <div className="bg-card border border-border rounded-2xl p-6 h-full hover:shadow-lg transition-shadow">
+              <div className="bg-card border border-border rounded-2xl p-6 h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <div className="text-4xl font-bold text-muted-foreground/20 mb-4">
                   {step.step}
                 </div>
@@ -80,7 +68,18 @@ export function HowToBuyPreview() {
               {/* Arrow between steps */}
               {index < STEPS.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 z-10">
-                  <ArrowRight className="w-6 h-6 text-muted-foreground/30" />
+                  <motion.div
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.4, delay: 0.4 + index * 0.15 }}
+                  >
+                    <motion.div
+                      animate={{ x: [0, 4, 0] }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+                    >
+                      <ArrowRight className="w-6 h-6 text-muted-foreground/30" />
+                    </motion.div>
+                  </motion.div>
                 </div>
               )}
             </motion.div>

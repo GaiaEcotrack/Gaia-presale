@@ -1,14 +1,13 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Shield, UserCheck, FileCheck, Leaf, CheckCircle } from 'lucide-react'
+import { UserCheck, FileCheck, Leaf, CheckCircle } from 'lucide-react'
 import { useInView } from '@/hooks/use-animations'
 
 const BADGES = [
-  { icon: Shield, label: 'Audited by CertiK', description: 'Smart contract security audit' },
-  { icon: UserCheck, label: 'KYC Verified', description: 'Team identity verified' },
-  { icon: FileCheck, label: 'Solana Partner', description: 'Official ecosystem partner' },
-  { icon: Leaf, label: 'Carbon Neutral', description: 'Sustainable blockchain solution' },
+  { icon: UserCheck, label: 'Verified Team', description: 'Transparent leadership with public profiles' },
+  { icon: FileCheck, label: 'Built on Solana', description: 'High-speed, low-cost blockchain' },
+  { icon: Leaf, label: 'Renewable Energy', description: 'Real projects verified by IoT' },
 ]
 
 export function TrustBadges() {
@@ -28,7 +27,7 @@ export function TrustBadges() {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {BADGES.map((badge, index) => (
             <motion.div
               key={badge.label}
@@ -57,7 +56,7 @@ export function TrustBadges() {
             Supported Wallets
           </p>
           <div className="flex flex-wrap items-center justify-center gap-6">
-            {['MetaMask', 'WalletConnect', 'Trust Wallet', 'Coinbase Wallet'].map((wallet) => (
+            {['Phantom', 'Solflare', 'Backpack'].map((wallet) => (
               <div key={wallet} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 {wallet}

@@ -98,9 +98,9 @@ export default function BuyPage() {
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div>
                       <p className="font-medium text-sm">Decimals</p>
-                      <p className="text-xs text-muted-foreground">9</p>
+                      <p className="text-xs text-muted-foreground">6</p>
                     </div>
-                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded">9</span>
+                    <span className="text-xs font-mono bg-muted px-2 py-1 rounded">6</span>
                   </div>
                 </div>
               </div>

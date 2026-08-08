@@ -10,10 +10,10 @@ const STEPS = [
   {
     step: '01',
     icon: Wallet,
-    title: 'Create a Wallet',
-    description: 'Download and install a Web3-compatible wallet. We recommend MetaMask for the best experience.',
+    title: 'Create a Solana Wallet',
+    description: 'Download and install a Solana-compatible wallet. We recommend Phantom or Solflare.',
     details: [
-      'Visit metamask.io and download the extension',
+      'Visit phantom.app or solflare.com and install the extension',
       'Create a new wallet with a strong password',
       'Write down your seed phrase and store it safely',
       'Never share your seed phrase with anyone',
@@ -23,12 +23,12 @@ const STEPS = [
     step: '02',
     icon: CreditCard,
     title: 'Fund Your Wallet',
-    description: 'Purchase ETH from a cryptocurrency exchange and transfer it to your wallet address.',
+    description: 'Purchase USDC from a cryptocurrency exchange and transfer it to your Solana wallet.',
     details: [
       'Create an account on an exchange (Coinbase, Binance, etc.)',
       'Complete identity verification if required',
-      'Purchase ETH using your preferred payment method',
-      'Withdraw ETH to your wallet address',
+      'Purchase USDC on the Solana network',
+      'Withdraw USDC to your Solana wallet address',
     ],
   },
   {
@@ -38,19 +38,19 @@ const STEPS = [
     description: 'Connect your wallet to our presale platform using the "Connect Wallet" button.',
     details: [
       'Click "Connect Wallet" in the top right corner',
-      'Select your wallet type (MetaMask, WalletConnect, etc.)',
+      'Select your wallet (Phantom, Solflare, or Backpack)',
       'Approve the connection request in your wallet',
-      'Ensure you\'re on the Ethereum mainnet',
+      'Ensure you are on the Solana network',
     ],
   },
   {
     step: '04',
     icon: Coins,
     title: 'Buy Tokens',
-    description: 'Enter the amount of ETH you want to invest and confirm the transaction.',
+    description: 'Enter the amount of USDC you want to invest and confirm the transaction.',
     details: [
-      'Enter the ETH amount you wish to invest',
-      'Review the token amount you\'ll receive',
+      'Enter the USDC amount you wish to invest',
+      'Review the token amount you will receive',
       'Add a referral code for bonus tokens (optional)',
       'Click "Buy Tokens" and confirm in your wallet',
     ],
@@ -168,7 +168,7 @@ export default function HowToBuyPage() {
           >
             <h3 className="text-xl font-semibold text-center mb-6">Supported Wallets</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {['MetaMask', 'WalletConnect', 'Trust Wallet', 'Coinbase Wallet'].map((wallet) => (
+              {['Phantom', 'Solflare', 'Backpack'].map((wallet) => (
                 <div key={wallet} className="flex items-center justify-center gap-2 p-4 bg-muted/50 rounded-xl">
                   <CheckCircle className="w-4 h-4 text-green-500" />
                   <span className="font-medium text-sm">{wallet}</span>

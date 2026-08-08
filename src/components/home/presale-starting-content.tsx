@@ -29,7 +29,7 @@ export function PresaleStartingContent() {
 
   const preparationSteps = [
     'Connect your Web3 wallet',
-    'Ensure you have enough ETH/USDT',
+    'Ensure you have enough USDC or SOL',
     'Set up gas fees for faster transactions',
     'Join our Telegram for real-time updates'
   ]
@@ -93,7 +93,7 @@ export function PresaleStartingContent() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Minimum Purchase</span>
-              <span className="font-bold">{nextStage.minPurchase} ETH</span>
+              <span className="font-bold">{nextStage.minPurchase} USDC</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Tokens Available</span>
@@ -166,7 +166,7 @@ export function PresaleStartingContent() {
               <div className="p-4 bg-white dark:bg-gray-900 rounded-xl">
                 <p className="font-medium mb-2">Gas Fees</p>
                 <p className="text-sm text-muted-foreground">
-                  Ensure you have enough ETH for gas fees. Higher gas = faster transaction.
+                  Ensure you have enough SOL for gas fees. Higher gas = faster transaction.
                 </p>
               </div>
               

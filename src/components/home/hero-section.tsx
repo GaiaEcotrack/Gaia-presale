@@ -6,12 +6,10 @@ import { ArrowRight, Shield, Users, TrendingUp, Clock, Leaf, Rocket, Check } fro
 import { Button } from '@/components/ui/button'
 import { CountdownTimer } from '@/components/shared/countdown-timer'
 import { CountdownToStart } from '@/components/shared/countdown-to-start'
-import { AnimatedCounter, StatsCard } from '@/components/shared/animated-counter'
 import { ParticleExplosion } from '@/components/shared/particle-explosion'
 import { PresaleEndedContent } from '@/components/home/presale-ended-content'
 import { PresaleStartingContent } from '@/components/home/presale-starting-content'
 import { TOKEN_CONFIG } from '@/lib/constants'
-import { usePresaleStore } from '@/store/presale-store'
 import { useWallet } from '@/hooks/use-wallet'
 import { useInView } from '@/hooks/use-animations'
 import { useState, useEffect } from 'react'
@@ -19,7 +17,6 @@ import { getPresaleStatus } from '@/lib/presale-utils'
 import { usePresaleConfigReadonly } from '@/hooks/use-presale-config'
 
 export function HeroSection() {
-  const { totalRaised, investors, tokensSold } = usePresaleStore()
   const { isConnected, connectWallet } = useWallet()
   const { ref, isInView } = useInView(0.1)
   
@@ -66,8 +63,16 @@ export function HeroSection() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-black/5 dark:bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-black/5 dark:bg-white/5 rounded-full blur-3xl" />
+        <motion.div
+          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
+          transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-black/5 dark:bg-white/5 rounded-full blur-3xl"
+        />
+        <motion.div
+          animate={{ x: [0, -20, 0], y: [0, 30, 0] }}
+          transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-black/5 dark:bg-white/5 rounded-full blur-3xl"
+        />
       </div>
 
       <div ref={ref} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -100,9 +105,9 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
           >
-            The Token That Transforms
+            Tokenize the Future of
             <br />
-            <span className="gradient-text">Sunlight into Value</span>
+            <span className="gradient-text">Clean Energy</span>
           </motion.h1>
 
           {/* Description */}
@@ -112,7 +117,8 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
-            Dual-token ecosystem on Solana where renewable energy meets real-world utility.
+            Renewable energy tokenization platform in Colombia.
+            Every verified kilowatt-hour becomes GAIA tokens on Solana.
           </motion.p>
 
           {/* Trust Badges */}
@@ -195,7 +201,7 @@ export function HeroSection() {
           >
             <Link href="/buy">
               <Button size="lg" className="h-14 px-8 text-lg gap-2">
-                Buy GAIA Tokens
+                Join the Presale
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
@@ -223,53 +229,57 @@ export function HeroSection() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 max-w-4xl mx-auto"
           >
-            <div className="bg-card border border-border rounded-2xl p-6">
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6"
+            >
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                   <TrendingUp className="w-5 h-5" />
                 </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-bold">
-                <AnimatedCounter end={totalRaised} prefix="$" decimals={0} separator />
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">Total Raised</p>
-            </div>
+              <p className="text-2xl sm:text-3xl font-bold">12+</p>
+              <p className="text-sm text-muted-foreground mt-1">Pilot Projects</p>
+            </motion.div>
 
-            <div className="bg-card border border-border rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <p className="text-2xl sm:text-3xl font-bold">
-                <AnimatedCounter end={investors} decimals={0} separator />
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">Investors</p>
-            </div>
-
-            <div className="bg-card border border-border rounded-2xl p-6">
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6"
+            >
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                   <Leaf className="w-5 h-5" />
                 </div>
               </div>
-              <p className="text-2xl sm:text-3xl font-bold">
-                <AnimatedCounter end={5} suffix="M+" decimals={0} />
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">kWh Tokenized</p>
-            </div>
+              <p className="text-2xl sm:text-3xl font-bold">150 kW</p>
+              <p className="text-sm text-muted-foreground mt-1">Tokenized</p>
+            </motion.div>
 
-            <div className="bg-card border border-border rounded-2xl p-6">
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                  <Users className="w-5 h-5" />
+                </div>
+              </div>
+              <p className="text-2xl sm:text-3xl font-bold">5+</p>
+              <p className="text-sm text-muted-foreground mt-1">Integrator Companies</p>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6"
+            >
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
                   <Clock className="w-5 h-5" />
                 </div>
               </div>
-               <p className="text-2xl sm:text-3xl font-bold">
-                 ${activeStage?.price.toFixed(3) || '0.000'}
-               </p>
-              <p className="text-sm text-muted-foreground mt-1">Current Price</p>
-            </div>
+               <p className="text-2xl sm:text-3xl font-bold">+10,000</p>
+              <p className="text-sm text-muted-foreground mt-1">Operating Hours</p>
+            </motion.div>
           </motion.div>
         </div>
       </div>

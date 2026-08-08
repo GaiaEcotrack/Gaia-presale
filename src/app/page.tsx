@@ -2,17 +2,11 @@
 
 import { HeroSection } from '@/components/home/hero-section'
 import { TrustBadges } from '@/components/home/trust-badges'
-import { TwoTokenEcosystem } from '@/components/home/two-token-ecosystem'
-import { RealWorldBacking } from '@/components/home/real-world-backing'
-import { GaiaScarcity } from '@/components/home/gaia-scarcity'
 import { TokenAllocation } from '@/components/home/token-allocation'
-import { ServiceStaking } from '@/components/home/service-staking'
-import { TransferFee } from '@/components/home/transfer-fee'
-import { DeflationaryFlywheel } from '@/components/home/deflationary-flywheel'
-import { LegalFoundation } from '@/components/home/legal-foundation'
-import { InvestmentCase } from '@/components/home/investment-case'
-import { SocialProof } from '@/components/home/social-proof'
-import { KeyDifferentiators } from '@/components/home/key-differentiators'
+import { ProblemSection } from '@/components/home/problem-section'
+import { ProjectsSection } from '@/components/home/projects-section'
+import { TokenFlowSection } from '@/components/home/token-flow-section'
+import { SolarFarmsSection } from '@/components/home/solar-farms-section'
 import { AboutSection } from '@/components/home/about-section'
 import { TokenomicsPreview } from '@/components/home/tokenomics-preview'
 import { RoadmapPreview } from '@/components/home/roadmap-preview'
@@ -26,31 +20,25 @@ export default function Home() {
     <>
       <HeroSection />
       <TrustBadges />
-      <TwoTokenEcosystem />
-      <RealWorldBacking />
-      <GaiaScarcity />
+      <ProblemSection />
+      <ProjectsSection />
+      <TokenFlowSection />
+      <SolarFarmsSection />
       <TokenAllocation />
-      <ServiceStaking />
-      <TransferFee />
-      <DeflationaryFlywheel />
-      <LegalFoundation />
-      <InvestmentCase />
-      <SocialProof />
-      <KeyDifferentiators />
 
       {/* Presale Widget Section */}
-        <section className="py-20 lg:py-32">
+      <section className="py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">
-                Join the Gaia Ecotrack Presale
+                Join the GAIA Presale
               </h2>
 
               <p className="text-lg text-muted-foreground mb-8">
                 Be part of the renewable energy revolution. The GAIA token connects
-                blockchain technology with real-world clean energy production,
+                blockchain technology with real clean energy production,
                 giving early supporters access to one of the most innovative
                 sustainability ecosystems in Web3.
               </p>
@@ -64,7 +52,7 @@ export default function Home() {
                   <div>
                     <p className="font-medium">Early Investor Bonus</p>
                     <p className="text-sm text-muted-foreground">
-                      Presale participants receive exclusive token bonuses and priority allocation.
+                      Presale participants receive exclusive tokens and priority allocation.
                     </p>
                   </div>
                 </div>
@@ -74,9 +62,9 @@ export default function Home() {
                     <span className="text-green-600 dark:text-green-400 text-sm font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-medium">Lowest Entry Price</p>
+                    <p className="font-medium">Best Entry Price</p>
                     <p className="text-sm text-muted-foreground">
-                      Secure GAIA tokens before public exchange listing at the most favorable price.
+                      Secure GAIA tokens before public listing at the best price.
                     </p>
                   </div>
                 </div>
@@ -86,10 +74,10 @@ export default function Home() {
                     <span className="text-green-600 dark:text-green-400 text-sm font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-medium">Real-World Utility</p>
+                    <p className="font-medium">Real Utility</p>
                     <p className="text-sm text-muted-foreground">
-                      Tokens are linked to renewable energy generation, carbon credits,
-                      and ecosystem services within the Gaia Ecotrack platform.
+                      Tokens backed by real renewable energy and carbon credits
+                      within the Gaia Ecotrack ecosystem.
                     </p>
                   </div>
                 </div>
@@ -99,10 +87,10 @@ export default function Home() {
                     <span className="text-green-600 dark:text-green-400 text-sm font-bold">✓</span>
                   </div>
                   <div>
-                    <p className="font-medium">Secure Blockchain Infrastructure</p>
+                    <p className="font-medium">Secure Infrastructure</p>
                     <p className="text-sm text-muted-foreground">
-                      Built using advanced decentralized technology ensuring transparency,
-                      traceability, and security for all transactions.
+                      Built on Solana with decentralized technology ensuring
+                      transparency, traceability and security.
                     </p>
                   </div>
                 </div>

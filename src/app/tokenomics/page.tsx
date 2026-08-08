@@ -69,7 +69,7 @@ export default function TokenomicsPage() {
               <p className="text-sm text-muted-foreground mt-2">Listing Price</p>
             </div>
             <div className="bg-card border border-border rounded-xl p-6 text-center">
-              <p className="text-3xl sm:text-4xl font-bold">18</p>
+              <p className="text-3xl sm:text-4xl font-bold">6</p>
               <p className="text-sm text-muted-foreground mt-2">Decimals</p>
             </div>
           </motion.div>

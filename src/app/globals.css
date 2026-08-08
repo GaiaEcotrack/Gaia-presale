@@ -52,7 +52,7 @@
   --card-foreground: #0a0a0a;
   --popover: #ffffff;
   --popover-foreground: #0a0a0a;
-  --primary: #0a0a0a;
+  --primary: #002850;
   --primary-foreground: #fafafa;
   --secondary: #f5f5f5;
   --secondary-foreground: #0a0a0a;
@@ -224,16 +224,16 @@
   background: rgba(23, 23, 23, 0.8);
 }
 
-/* Gradient text */
+/* Gradient text — Brand colors from PDF Apéndice A */
 .gradient-text {
-  background: linear-gradient(135deg, #0a0a0a 0%, #525252 100%);
+  background: linear-gradient(135deg, #002850 0%, #00468C 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .dark .gradient-text {
-  background: linear-gradient(135deg, #fafafa 0%, #a3a3a3 100%);
+  background: linear-gradient(135deg, #4a9eff 0%, #7ab8ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -256,4 +256,10 @@
 
 .dark ::selection {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* TokenFlow Section */
+@keyframes emblemSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

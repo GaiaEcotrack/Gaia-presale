@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               When you participate in the {TOKEN_CONFIG.name} presale, we may collect the following information:
             </p>
             <ul>
-              <li><strong>Wallet Address:</strong> Your Ethereum wallet address used for transactions</li>
+              <li><strong>Wallet Address:</strong> Your Solana wallet address used for transactions</li>
               <li><strong>Transaction Data:</strong> Amounts, timestamps, and transaction hashes</li>
               <li><strong>Email Address:</strong> If you subscribe to our newsletter</li>
               <li><strong>Usage Data:</strong> Browser type, IP address, pages visited</li>
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
             <h2>5. Blockchain Transparency</h2>
             <p>
               Please note that blockchain transactions are publicly visible. Your wallet address and transaction 
-              details will be permanently recorded on the Ethereum blockchain and cannot be deleted.
+              details will be permanently recorded on the Solana blockchain and cannot be deleted.
             </p>
 
             <h2>6. Cookies</h2>

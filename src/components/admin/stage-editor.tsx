@@ -13,7 +13,7 @@ import { PresaleStageConfig, validateStageDates, formatStageDate } from '@/confi
 import { useToast } from '@/hooks/use-toast'
 
 interface StageEditorProps {
-  stageId: number | null // null para crear nuevo stage
+  stageId: number | null // null to create new stage
   onClose: () => void
 }
 
@@ -30,7 +30,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
     bonus: existingStage?.bonus || 0,
     minPurchase: existingStage?.minPurchase || 0.1,
     startDate: existingStage?.startDate || new Date(),
-    endDate: existingStage?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días desde ahora
+    endDate: existingStage?.endDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     supply: existingStage?.supply || 1_000_000,
     sold: existingStage?.sold || 0,
   })
@@ -55,7 +55,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
     
     if (validationErrors.length > 0) {
       toast({
-        title: 'Errores de validación',
+        title: 'Validation errors',
         description: validationErrors.join(', '),
         variant: 'destructive'
       })
@@ -70,18 +70,18 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
     
     try {
       if (stageId) {
-        // Actualizar stage existente
+        // Update existing stage
         updateStage(stageId, formData)
         toast({
-          title: 'Stage actualizado',
-          description: `El stage "${formData.name}" ha sido actualizado exitosamente.`,
+          title: 'Stage updated',
+          description: `The stage "${formData.name}" has been successfully updated.`,
         })
       } else {
-        // Crear nuevo stage
+        // Create new stage
         addStage(formData)
         toast({
-          title: 'Stage creado',
-          description: `El stage "${formData.name}" ha sido creado exitosamente.`,
+          title: 'Stage created',
+          description: `The stage "${formData.name}" has been successfully created.`,
         })
       }
       
@@ -90,7 +90,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'No se pudo guardar el stage. Intenta nuevamente.',
+        description: 'Could not save the stage. Please try again.',
         variant: 'destructive'
       })
     }
@@ -119,10 +119,10 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
         <div className="sticky top-0 bg-card border-b border-border p-6 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold">
-              {stageId ? `Editar Stage: ${existingStage?.name}` : 'Crear Nuevo Stage'}
+              {stageId ? `Edit Stage: ${existingStage?.name}` : 'Create New Stage'}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Configura los detalles del stage del presale
+              Configure the presale stage details
             </p>
           </div>
           <Button variant="ghost" size="icon" onClick={handleCancel}>
@@ -137,7 +137,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
                 <div>
-                  <p className="font-medium text-destructive mb-2">Errores de validación:</p>
+                  <p className="font-medium text-destructive mb-2">Validation errors:</p>
                   <ul className="list-disc pl-5 space-y-1 text-sm">
                     {errors.map((error, index) => (
                       <li key={index}>{error}</li>
@@ -149,21 +149,21 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
           )}
           
           <div className="grid md:grid-cols-2 gap-6">
-            {/* Nombre del Stage */}
+            {/* Stage Name */}
             <div className="md:col-span-2">
-              <Label htmlFor="name">Nombre del Stage *</Label>
+              <Label htmlFor="name">Stage Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => handleChange('name', e.target.value)}
-                placeholder="Ej: Seed Sale, Private Sale, Public Sale"
+                placeholder="E.g.: Seed Sale, Private Sale, Public Sale"
                 className="mt-1"
               />
             </div>
             
-            {/* Precio y Bonus */}
+            {/* Price and Bonus */}
             <div>
-              <Label htmlFor="price">Precio por Token (USD) *</Label>
+              <Label htmlFor="price">Price per Token (USD) *</Label>
               <div className="relative mt-1">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -194,9 +194,9 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
               </div>
             </div>
             
-            {/* Compra mínima */}
+            {/* Minimum purchase */}
             <div>
-              <Label htmlFor="minPurchase">Compra Mínima (ETH) *</Label>
+              <Label htmlFor="minPurchase">Minimum Purchase (USDC) *</Label>
               <Input
                 id="minPurchase"
                 type="number"
@@ -208,9 +208,9 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
               />
             </div>
             
-            {/* Supply y Sold */}
+            {/* Supply and Sold */}
             <div>
-              <Label htmlFor="supply">Total de Tokens *</Label>
+              <Label htmlFor="supply">Total Tokens *</Label>
               <div className="relative mt-1">
                 <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -225,7 +225,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
             </div>
             
             <div>
-              <Label htmlFor="sold">Tokens Vendidos</Label>
+              <Label htmlFor="sold">Tokens Sold</Label>
               <Input
                 id="sold"
                 type="number"
@@ -236,9 +236,9 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
               />
             </div>
             
-            {/* Fechas */}
+            {/* Dates */}
             <div>
-              <Label htmlFor="startDate">Fecha de Inicio *</Label>
+              <Label htmlFor="startDate">Start Date *</Label>
               <div className="relative mt-1">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -255,7 +255,7 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
             </div>
             
             <div>
-              <Label htmlFor="endDate">Fecha de Fin *</Label>
+              <Label htmlFor="endDate">End Date *</Label>
               <div className="relative mt-1">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
@@ -274,14 +274,14 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
           
           {/* Preview */}
           <div className="bg-muted/50 rounded-xl p-4">
-            <h3 className="font-medium mb-2">Vista Previa</h3>
+            <h3 className="font-medium mb-2">Preview</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Nombre:</span>
-                <p className="font-medium">{formData.name || 'Sin nombre'}</p>
+                <span className="text-muted-foreground">Name:</span>
+                <p className="font-medium">{formData.name || 'No name'}</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Precio:</span>
+                <span className="text-muted-foreground">Price:</span>
                 <p className="font-medium">${formData.price.toFixed(3)}</p>
               </div>
               <div>
@@ -289,9 +289,9 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
                 <p className="font-medium">{formData.bonus}%</p>
               </div>
               <div>
-                <span className="text-muted-foreground">Duración:</span>
+                <span className="text-muted-foreground">Duration:</span>
                 <p className="font-medium">
-                  {Math.ceil((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24))} días
+                  {Math.ceil((formData.endDate.getTime() - formData.startDate.getTime()) / (1000 * 60 * 60 * 24))} days
                 </p>
               </div>
             </div>
@@ -301,11 +301,11 @@ export function StageEditor({ stageId, onClose }: StageEditorProps) {
         {/* Footer */}
         <div className="sticky bottom-0 bg-card border-t border-border p-6 flex justify-end gap-3">
           <Button variant="outline" onClick={handleCancel}>
-            Cancelar
+            Cancel
           </Button>
           <Button onClick={handleSave} className="gap-2">
             <Save className="w-4 h-4" />
-            {stageId ? 'Actualizar Stage' : 'Crear Stage'}
+            {stageId ? 'Update Stage' : 'Create Stage'}
           </Button>
         </div>
       </motion.div>

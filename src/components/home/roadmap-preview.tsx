@@ -28,14 +28,20 @@ export function RoadmapPreview() {
         <div className="relative">
           {/* Timeline Line */}
           <div className="absolute left-1/2 top-0 bottom-0 w-px bg-border hidden lg:block" />
+          <motion.div
+            initial={{ scaleY: 0 }}
+            animate={isInView ? { scaleY: 1 } : {}}
+            transition={{ duration: 1.5, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
+            className="absolute left-1/2 top-0 bottom-0 w-px bg-primary/30 origin-top hidden lg:block"
+          />
 
           <div className="space-y-12 lg:space-y-0">
             {ROADMAP_PHASES.map((phase, index) => (
               <motion.div
                 key={phase.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
+                initial={{ opacity: 0, y: 30, x: index % 2 === 0 ? -20 : 20 }}
+                animate={isInView ? { opacity: 1, y: 0, x: 0 } : {}}
+                transition={{ duration: 0.5, delay: 0.3 + index * 0.15 }}
                 className={`relative lg:flex lg:items-center ${
                   index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
                 }`}
@@ -43,7 +49,7 @@ export function RoadmapPreview() {
                 {/* Content */}
                 <div className={`lg:w-1/2 ${index % 2 === 0 ? 'lg:pr-12 lg:text-right' : 'lg:pl-12'}`}>
                   <div
-                    className={`bg-card border border-border rounded-2xl p-6 ${
+                    className={`bg-card border border-border rounded-2xl p-6 transition-all duration-300 hover:shadow-lg ${
                       phase.current ? 'ring-2 ring-black dark:ring-white' : ''
                     } ${phase.completed ? 'opacity-75' : ''}`}
                   >
@@ -67,15 +73,24 @@ export function RoadmapPreview() {
 
                 {/* Timeline Dot */}
                 <div className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center justify-center">
-                  <div
-                    className={`w-4 h-4 rounded-full ${
-                      phase.completed
-                        ? 'bg-green-500'
-                        : phase.current
-                        ? 'bg-black dark:bg-white'
-                        : 'bg-muted border-2 border-border'
-                    }`}
-                  />
+                  <div className="relative">
+                    {phase.current && (
+                      <motion.div
+                        animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
+                        transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+                        className="absolute inset-0 w-4 h-4 rounded-full bg-black dark:bg-white"
+                      />
+                    )}
+                    <div
+                      className={`w-4 h-4 rounded-full relative z-10 ${
+                        phase.completed
+                          ? 'bg-green-500'
+                          : phase.current
+                          ? 'bg-black dark:bg-white'
+                          : 'bg-muted border-2 border-border'
+                      }`}
+                    />
+                  </div>
                 </div>
 
                 {/* Spacer */}

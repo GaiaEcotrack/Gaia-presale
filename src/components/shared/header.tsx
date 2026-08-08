@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Wallet, ChevronDown, ExternalLink, Copy, Check, LogOut } from 'lucide-react'
+import { Menu, X, Wallet, Copy, Check, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useWallet } from '@/hooks/use-wallet'
 import { TOKEN_CONFIG } from '@/lib/constants'
@@ -17,15 +17,16 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/buy', label: 'Buy Tokens' },
-  { href: '/claim', label: 'Claim Tokens' },
+  { href: '/#projects', label: 'Projects' },
   { href: '/tokenomics', label: 'Tokenomics' },
   { href: '/roadmap', label: 'Roadmap' },
-  { href: '/whitepaper', label: 'Whitepaper' },
-  { href: '/how-to-buy', label: 'How To Buy' },
-  { href: '/faq', label: 'FAQ' },
   { href: '/team', label: 'Team' },
+  { href: '/whitepaper', label: 'Whitepaper' },
+]
+
+const ACTION_LINKS = [
+  { href: '/buy', label: 'Buy' },
+  { href: '/claim', label: 'Claim' },
 ]
 
 export function Header() {
@@ -86,7 +87,7 @@ export function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1">
-              {NAV_LINKS.slice(0, 5).map((link) => (
+              {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
@@ -95,24 +96,16 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted flex items-center gap-1">
-                    More <ChevronDown className="w-4 h-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  {NAV_LINKS.slice(5).map((link) => (
-                    <DropdownMenuItem key={link.href} asChild>
-                      <Link href={link.href} className="w-full">{link.label}</Link>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/admin" className="w-full">Admin</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="w-px h-6 bg-border mx-1" />
+              {ACTION_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors rounded-lg"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
 
             {/* Right Section */}
@@ -151,7 +144,7 @@ export function Header() {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/buy" className="w-full">Buy Tokens</Link>
+                        <Link href="/buy" className="w-full">Join the Presale</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/claim" className="w-full">Claim Tokens</Link>
@@ -164,17 +157,12 @@ export function Header() {
                   </DropdownMenu>
                 </div>
               ) : (
-                <Button
-                  onClick={handleConnect}
-                  disabled={isConnecting}
-                  className="gap-2"
-                >
-                  <Wallet className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-                  </span>
-                  <span className="sm:hidden">Connect</span>
+                <Link href="/buy">
+                <Button className="gap-2">
+                  <span className="hidden sm:inline">Join the Presale</span>
+                  <span className="sm:hidden">Buy</span>
                 </Button>
+              </Link>
               )}
 
               {/* Mobile Menu Button */}
@@ -219,12 +207,22 @@ export function Header() {
                     </Link>
                   ))}
                   <div className="border-t border-border my-2 pt-2">
+                    {ACTION_LINKS.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block px-4 py-3 text-sm font-medium text-foreground hover:bg-muted rounded-lg transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
                     <Link
-                      href="/admin"
+                      href="/faq"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                     >
-                      Admin Dashboard
+                      FAQ
                     </Link>
                   </div>
                 </nav>

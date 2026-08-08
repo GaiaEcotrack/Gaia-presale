@@ -7,7 +7,7 @@ const COMPARISONS = [
   {
     feature: 'Blockchain',
     gaia: 'Solana ($0.0005/tx, sub-second finality)',
-    others: 'Often Ethereum (high fees)',
+    others: 'Legacy chains (high fees)',
   },
   {
     feature: 'Token Type',

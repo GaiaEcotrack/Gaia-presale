@@ -49,7 +49,7 @@ export default function TermsPage() {
               By purchasing tokens, you acknowledge that:
             </p>
             <ul>
-              <li>Tokens are digital assets on the Ethereum blockchain</li>
+              <li>Tokens are digital assets on the Solana blockchain</li>
               <li>Token purchases are final and non-refundable</li>
               <li>Tokens may be subject to vesting periods</li>
               <li>Token value may fluctuate significantly</li>

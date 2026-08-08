@@ -54,8 +54,8 @@ export function Footer() {
               <span className="text-xl font-semibold">{TOKEN_CONFIG.name}</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-sm mb-6">
-              {TOKEN_CONFIG.name} is building the future of decentralized finance. 
-              Join our presale and be part of the revolution.
+              {TOKEN_CONFIG.name} is building the future of renewable energy tokenization.
+              Join our presale and be part of the clean energy revolution.
             </p>
             
             {/* Contract Address */}
@@ -152,9 +152,12 @@ export function Footer() {
             <div className="flex items-start gap-3">
               <Shield className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground leading-relaxed">
-                <strong className="text-foreground">Risk Disclaimer:</strong> This is not financial advice. 
-                Cryptocurrency investments carry significant risk. Only invest what you can afford to lose. 
-                Past performance does not guarantee future results. Please conduct your own research before investing.
+                <strong className="text-foreground">Risk Disclaimer:</strong>{' '}
+                GAIA tokens may experience significant price fluctuations. There is no guarantee of liquidity
+                or future value. Regulatory frameworks for digital assets may change. This is not financial
+                advice. Token value is linked to real energy production but carries inherent risks.
+                Invest only what you can afford to lose. Consult an independent financial advisor before
+                making investment decisions. Past performance does not guarantee future results.
               </p>
             </div>
           </div>

@@ -1,26 +1,26 @@
-// Configuración centralizada del presale
-// Este archivo contiene toda la configuración de stages, fechas y precios
+// Centralized presale configuration
+// This file contains all stage, date, and price configurations
 
 export interface PresaleStageConfig {
   id: number
   name: string
-  price: number // USD por token
-  bonus: number // Porcentaje de bonus
-  minPurchase: number // ETH mínimo
+  price: number // USD per token
+  bonus: number // Bonus percentage
+  minPurchase: number // Minimum USDC
   startDate: Date
   endDate: Date
-  supply: number // Tokens disponibles en este stage
-  sold: number // Tokens ya vendidos
-  active?: boolean // Si el stage está activo (calculado dinámicamente)
+  supply: number // Tokens available in this stage
+  sold: number // Tokens already sold
+  active?: boolean // Whether the stage is active (computed dynamically)
 }
 
 export interface PresaleConfig {
   stages: PresaleStageConfig[]
-  currentStageIndex: number // Índice del stage activo actualmente
-  autoAdvance: boolean // Si avanza automáticamente al siguiente stage
+  currentStageIndex: number // Index of the currently active stage
+  autoAdvance: boolean // Whether to auto-advance to the next stage
 }
 
-// Configuración por defecto - Stages del presale
+// Default configuration - Presale stages
 export const DEFAULT_PRESALE_STAGES: PresaleStageConfig[] = [
   {
     id: 1,
@@ -68,10 +68,10 @@ export const DEFAULT_PRESALE_STAGES: PresaleStageConfig[] = [
   },
 ]
 
-// Configuración por defecto completa
+// Complete default configuration
 export const DEFAULT_PRESALE_CONFIG: PresaleConfig = {
   stages: DEFAULT_PRESALE_STAGES,
-  currentStageIndex: 0, // Seed Sale (índice 0, id: 1)
+  currentStageIndex: 0, // Seed Sale (index 0, id: 1)
   autoAdvance: true,
 }
 
@@ -147,40 +147,40 @@ export function removeStageFromConfig(
   }
 }
 
-// Validación de fechas
+// Date validation
 export function validateStageDates(stage: PresaleStageConfig): string[] {
   const errors: string[] = []
   
   if (stage.startDate >= stage.endDate) {
-    errors.push("La fecha de inicio debe ser anterior a la fecha de fin")
+    errors.push("The start date must be before the end date")
   }
   
   if (stage.supply <= 0) {
-    errors.push("El supply debe ser mayor a 0")
+    errors.push("The supply must be greater than 0")
   }
   
   if (stage.sold < 0) {
-    errors.push("Los tokens vendidos no pueden ser negativos")
+    errors.push("Tokens sold cannot be negative")
   }
   
   if (stage.sold > stage.supply) {
-    errors.push("Los tokens vendidos no pueden superar el supply")
+    errors.push("Tokens sold cannot exceed the supply")
   }
   
   if (stage.price <= 0) {
-    errors.push("El precio debe ser mayor a 0")
+    errors.push("The price must be greater than 0")
   }
   
   if (stage.bonus < 0 || stage.bonus > 100) {
-    errors.push("El bonus debe estar entre 0 y 100")
+    errors.push("The bonus must be between 0 and 100")
   }
   
   return errors
 }
 
-// Formateo para UI
+// UI formatting
 export function formatStageDate(date: Date): string {
-  return date.toLocaleDateString('es-ES', {
+  return date.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -191,17 +191,17 @@ export function formatStageDate(date: Date): string {
 }
 
 export function formatShortDate(date: Date): string {
-  return date.toLocaleDateString('es-ES', {
+  return date.toLocaleDateString('en-US', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
   })
 }
 
-// Funciones para pre-lanzamiento
+// Pre-launch functions
 export function isBeforeFirstSale(config: PresaleConfig): boolean {
   const now = new Date()
-  const firstStage = config.stages[0] // Primer stage (Seed Sale)
+  const firstStage = config.stages[0] // First stage (Seed Sale)
   return now < firstStage.startDate
 }
 

@@ -26,9 +26,9 @@ export const usePresaleStore = create<PresaleState>()(
   persist(
     (set, get) => ({
       // Initial stats (mock data)
-      totalRaised: 2847592,
-      investors: 12847,
-      tokensSold: 284759200,
+      totalRaised: 1247592,
+      investors: 4872,
+      tokensSold: 103966000,
       
       // Getters derivados de la configuración
       get currentStage() {

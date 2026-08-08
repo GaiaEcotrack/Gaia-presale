@@ -96,7 +96,8 @@ export function TokenAllocation() {
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-card border border-border rounded-2xl p-6 hover:shadow-lg transition-shadow"
+              whileHover={{ y: -4, boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}
+              className="bg-card border border-border rounded-2xl p-6 transition-all duration-300"
             >
               <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
                 <item.icon className={`w-7 h-7 ${item.color}`} />
