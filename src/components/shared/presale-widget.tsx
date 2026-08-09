@@ -193,18 +193,18 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6 p-4 bg-muted/50 rounded-xl">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 p-3 sm:p-4 bg-muted/50 rounded-xl">
         <div className="text-center">
-          <p className="text-lg sm:text-xl font-bold">${pricePerToken.toFixed(4)}</p>
-          <p className="text-xs text-muted-foreground">Price</p>
+          <p className="text-sm sm:text-lg sm:text-xl font-bold">${pricePerToken.toFixed(4)}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Price</p>
         </div>
         <div className="text-center border-x border-border">
-          <p className="text-lg sm:text-xl font-bold">{tokensAvailable.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">Available</p>
+          <p className="text-sm sm:text-lg sm:text-xl font-bold">{tokensAvailable.toLocaleString()}</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Available</p>
         </div>
         <div className="text-center">
-          <p className="text-lg sm:text-xl font-bold">GAIA</p>
-          <p className="text-xs text-muted-foreground">Token</p>
+          <p className="text-sm sm:text-lg sm:text-xl font-bold">GAIA</p>
+          <p className="text-[10px] sm:text-xs text-muted-foreground">Token</p>
         </div>
       </div>
 

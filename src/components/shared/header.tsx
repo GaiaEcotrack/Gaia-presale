@@ -21,6 +21,7 @@ const NAV_LINKS = [
   { href: '/tokenomics', label: 'Tokenomics' },
   { href: '/roadmap', label: 'Roadmap' },
   { href: '/team', label: 'Team' },
+  { href: '/faq', label: 'FAQ' },
   { href: '/whitepaper', label: 'Whitepaper' },
 ]
 
@@ -83,15 +84,19 @@ export function Header() {
                 <Image src="/logoGaia.png" alt="Gaia Logo" width={40} height={40} / >
               </motion.div>
               <span className="text-xl font-semibold tracking-tight">{TOKEN_CONFIG.name}</span>
+              <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 bg-primary/5 border border-primary/10 text-primary text-[10px] font-semibold tracking-wide uppercase rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                Solana
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
+            <nav className="hidden xl:flex items-center gap-1">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted"
+                  className="px-3 2xl:px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
@@ -101,7 +106,7 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors rounded-lg"
+                  className="px-3 2xl:px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors rounded-lg whitespace-nowrap"
                 >
                   {link.label}
                 </Link>
@@ -168,7 +173,7 @@ export function Header() {
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 hover:bg-muted rounded-lg transition-colors"
+                className="xl:hidden p-2 hover:bg-muted rounded-lg transition-colors"
               >
                 {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -184,7 +189,7 @@ export function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 lg:hidden"
+            className="fixed inset-0 z-40 xl:hidden"
           >
             <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
             <motion.div
@@ -217,13 +222,6 @@ export function Header() {
                         {link.label}
                       </Link>
                     ))}
-                    <Link
-                      href="/faq"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="block px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-                    >
-                      FAQ
-                    </Link>
                   </div>
                 </nav>
               </div>

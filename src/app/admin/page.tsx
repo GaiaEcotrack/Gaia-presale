@@ -130,7 +130,7 @@ const [endDate, setEndDate] = useState(
     <div className="min-h-screen py-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground">Manage presale settings and configuration.</p>
@@ -148,9 +148,9 @@ const [endDate, setEndDate] = useState(
           className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
         >
           {[
-            { label: 'Total Raised', value: '$2,847,592' },
-            { label: 'Investors', value: '12,847' },
-            { label: 'Tokens Sold', value: '284.7M' },
+            { label: 'Total Raised', value: '$1,247,592' },
+            { label: 'Investors', value: '4,872' },
+            { label: 'Tokens Sold', value: '103.9M' },
             { label: 'Current Stage', value: 'Stage 2' },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-xl p-4">
@@ -162,18 +162,20 @@ const [endDate, setEndDate] = useState(
 
       {/* Tabs */}
       <Tabs defaultValue="settings" className="mb-8">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="settings" className="gap-2">
-            <Settings className="w-4 h-4" />
-            Settings
+        <TabsList className="grid w-full grid-cols-3 gap-1">
+          <TabsTrigger value="settings" className="gap-1 text-xs sm:text-sm">
+            <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Settings</span>
+            <span className="sm:hidden">Config</span>
           </TabsTrigger>
-          <TabsTrigger value="stages" className="gap-2">
-            <List className="w-4 h-4" />
+          <TabsTrigger value="stages" className="gap-1 text-xs sm:text-sm">
+            <List className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             Stages
           </TabsTrigger>
-          <TabsTrigger value="stats" className="gap-2">
-            <Calendar className="w-4 h-4" />
-            Statistics
+          <TabsTrigger value="stats" className="gap-1 text-xs sm:text-sm">
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">Statistics</span>
+            <span className="sm:hidden">Stats</span>
           </TabsTrigger>
         </TabsList>
 
@@ -233,7 +235,7 @@ const [endDate, setEndDate] = useState(
               </div>
             </div>
 
-            <div className="flex gap-4 mt-6">
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
               <Button onClick={handleSave} className="gap-2">
                 <Save className="w-4 h-4" />
                 Save Changes

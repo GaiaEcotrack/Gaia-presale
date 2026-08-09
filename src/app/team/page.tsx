@@ -168,7 +168,7 @@ export default function TeamPage() {
           >
             We are always looking for talented people passionate about renewable energy and blockchain.
             Contact us at{' '}
-            <a href="mailto:careers@gaiaecotrack.com" className="text-foreground underline hover:no-underline">
+            <a href="mailto:careers@gaiaecotrack.com" className="text-foreground underline hover:no-underline break-all">
               careers@gaiaecotrack.com
             </a>
           </motion.p>

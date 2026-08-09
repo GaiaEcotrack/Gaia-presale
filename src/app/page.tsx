@@ -8,6 +8,7 @@ import { ProjectsSection } from '@/components/home/projects-section'
 import { TokenFlowSection } from '@/components/home/token-flow-section'
 import { SolarFarmsSection } from '@/components/home/solar-farms-section'
 import { AboutSection } from '@/components/home/about-section'
+import { KeyDifferentiators } from '@/components/home/key-differentiators'
 import { TokenomicsPreview } from '@/components/home/tokenomics-preview'
 import { RoadmapPreview } from '@/components/home/roadmap-preview'
 import { HowToBuyPreview } from '@/components/home/how-to-buy-preview'
@@ -29,7 +30,7 @@ export default function Home() {
       {/* Presale Widget Section */}
       <section className="py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             
             <div>
               <h2 className="text-3xl sm:text-4xl font-bold mb-6">
@@ -107,6 +108,7 @@ export default function Home() {
       </section>  
       
       <AboutSection />
+      <KeyDifferentiators />
       <TokenomicsPreview />
       <RoadmapPreview />
       <HowToBuyPreview />

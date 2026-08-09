@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { motion, animate } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react'
 import { PROJECTS_DATA, type Project } from '@/data/projects'
 import { useInView } from '@/hooks/use-animations'
 
@@ -10,13 +9,15 @@ const STATUS_CONFIG = {
   tokenizando: { label: 'Tokenizing', color: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' },
   enConexion: { label: 'Connected', color: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' },
   proximo: { label: 'Upcoming', color: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400' },
-};
+}
+
+const GAP = 24
+const AUTO_INTERVAL = 4000
 
 function ProjectCard({ project }: { project: Project }) {
-  const status = STATUS_CONFIG[project.estado];
-
+  const status = STATUS_CONFIG[project.estado]
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:scale-[1.02] transition-all duration-300 min-w-[350px] max-w-[400px] w-[350px] sm:w-[380px] lg:w-[400px] flex-shrink-0 select-none">
+    <div className="flex-shrink-0 w-[85vw] sm:w-[48%] lg:w-[31.5%] bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 select-none">
       <div className="aspect-video bg-muted flex items-center justify-center">
         {project.foto === '/projects/placeholder.jpg' ? (
           <div className="flex flex-col items-center gap-1 text-muted-foreground">
@@ -34,17 +35,15 @@ function ProjectCard({ project }: { project: Project }) {
           />
         )}
       </div>
-      <div className="p-6">
+      <div className="p-5 sm:p-6">
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm font-medium text-primary">{project.tipo}</span>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{project.anio}</span>
-            <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
-              {status.label}
-            </span>
+            <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>{status.label}</span>
           </div>
         </div>
-        <h3 className="text-lg font-semibold mb-3">{project.ubicacion}</h3>
+        <h3 className="text-base sm:text-lg font-semibold mb-3">{project.ubicacion}</h3>
         <div className="grid grid-cols-2 gap-2 text-sm mb-3">
           <div className="bg-muted/50 rounded-lg px-3 py-2">
             <span className="text-muted-foreground text-xs block">Capacity</span>
@@ -66,226 +65,98 @@ function ProjectCard({ project }: { project: Project }) {
         </p>
       </div>
     </div>
-  );
+  )
 }
-
-const CARD_GAP = 24
-const AUTO_SCROLL_INTERVAL = 4000
 
 export function ProjectsSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
-  const x = useRef(0)
-  const animating = useRef(false)
-  const autoTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const pausedRef = useRef(false)
+  const [cardWidth, setCardWidth] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
-  const [visibleCards, setVisibleCards] = useState(3)
-  const [cardWidth, setCardWidth] = useState(400)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const pausedRef = useRef(false)
+  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const { ref: headerRef, isInView: headerInView } = useInView(0.2)
 
   const total = PROJECTS_DATA.length
-  const { ref: headerRef, isInView: headerInView } = useInView(0.2)
-  // Clone 3 cards at start and 3 at end for infinite loop
-  const clonesBefore = PROJECTS_DATA.slice(-3)
-  const clonesAfter = PROJECTS_DATA.slice(0, 3)
-  const extended = [...clonesBefore, ...PROJECTS_DATA, ...clonesAfter]
 
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const w = containerRef.current.offsetWidth
-        if (w < 640) {
-          setVisibleCards(1)
-          setCardWidth(Math.min(350, w - 32))
-        } else if (w < 1024) {
-          setVisibleCards(2)
-          setCardWidth(380)
-        } else {
-          setVisibleCards(3)
-          setCardWidth(400)
-        }
-      }
-    }
-    updateDimensions()
-    window.addEventListener('resize', updateDimensions)
-    return () => window.removeEventListener('resize', updateDimensions)
+  const measure = useCallback(() => {
+    const track = trackRef.current
+    if (!track || !track.children[0]) return 0
+    return (track.children[0] as HTMLElement).offsetWidth + GAP
   }, [])
 
-  const getStep = useCallback(() => cardWidth + CARD_GAP, [cardWidth])
+  const getTranslateX = useCallback((index: number) => {
+    const step = measure()
+    if (!step) return 0
+    const container = containerRef.current
+    const containerWidth = container ? container.offsetWidth : 0
+    const centerOffset = (containerWidth - step + GAP) / 2
+    return -(index * step) + centerOffset
+  }, [measure])
 
-  const getIndexOffset = useCallback((realIndex: number) => {
-    // Offset to center the active card
-    const containerWidth = containerRef.current?.offsetWidth ?? 0
-    return 0
-  }, [])
+  const goTo = useCallback((index: number, withTransition = true) => {
+    const track = trackRef.current
+    if (!track) return
 
-  const moveToReal = useCallback((realIndex: number, withAnimation = true) => {
-    if (animating.current) return
+    const clamped = Math.max(0, Math.min(index, total - 1))
+    const x = getTranslateX(clamped)
 
-    // realIndex is 0-based within PROJECTS_DATA
-    // extended array starts with 3 clones, so actual position = realIndex + 3
-    const extendedIndex = realIndex + 3
-    const step = getStep()
-    const targetX = -(extendedIndex * step)
-
-    if (withAnimation) {
-      animating.current = true
-      const startX = x.current
-      const diff = targetX - startX
-      const duration = Math.min(Math.abs(diff) / 1000, 0.6)
-
-      animate(startX, targetX, {
-        type: 'spring',
-        stiffness: 200,
-        damping: 25,
-        mass: 0.8,
-        onUpdate: (v) => {
-          x.current = v
-          if (trackRef.current) {
-            trackRef.current.style.transform = `translateX(${v}px)`
-          }
-        },
-        onComplete: () => {
-          animating.current = false
-        },
-      })
+    if (withTransition) {
+      track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
     } else {
-      x.current = targetX
-      if (trackRef.current) {
-        trackRef.current.style.transform = `translateX(${targetX}px)`
-      }
+      track.style.transition = 'none'
     }
-
-    setCurrentIndex(realIndex)
-  }, [getStep])
+    track.style.transform = `translateX(${x}px)`
+    setCurrentIndex(clamped)
+  }, [total, getTranslateX])
 
   const goToNext = useCallback(() => {
-    const next = currentIndex + 1
-    if (next >= total) {
-      // Jump to 0 via clone zone
-      // First go to clone (which looks like index 0)
-      const fakeNext = next // = total, which in extended = total + 3
-      const step = getStep()
-      const targetX = -(fakeNext + 3) * step
-
-      animating.current = true
-      animate(x.current, targetX, {
-        type: 'spring',
-        stiffness: 200,
-        damping: 25,
-        mass: 0.8,
-        onUpdate: (v) => {
-          x.current = v
-          if (trackRef.current) {
-            trackRef.current.style.transform = `translateX(${v}px)`
-          }
-        },
-        onComplete: () => {
-          // Now instant jump back to real index 0
-          setCurrentIndex(0)
-          const realTargetX = -(0 + 3) * step
-          x.current = realTargetX
-          if (trackRef.current) {
-            trackRef.current.style.transform = `translateX(${realTargetX}px)`
-          }
-          animating.current = false
-        },
-      })
-    } else {
-      moveToReal(next)
-    }
-  }, [currentIndex, total, getStep, moveToReal])
+    goTo(currentIndex >= total - 1 ? 0 : currentIndex + 1)
+  }, [currentIndex, total, goTo])
 
   const goToPrev = useCallback(() => {
-    const prev = currentIndex - 1
-    if (prev < 0) {
-      // Jump to last via clone zone
-      const step = getStep()
-      const fakePrev = -1 // in extended = -1 + 3 = 2
-      const targetX = -(fakePrev + 3) * step
+    goTo(currentIndex <= 0 ? total - 1 : currentIndex - 1)
+  }, [currentIndex, total, goTo])
 
-      animating.current = true
-      animate(x.current, targetX, {
-        type: 'spring',
-        stiffness: 200,
-        damping: 25,
-        mass: 0.8,
-        onUpdate: (v) => {
-          x.current = v
-          if (trackRef.current) {
-            trackRef.current.style.transform = `translateX(${v}px)`
-          }
-        },
-        onComplete: () => {
-          // Instant jump to real last index
-          const lastIndex = total - 1
-          setCurrentIndex(lastIndex)
-          const realTargetX = -(lastIndex + 3) * step
-          x.current = realTargetX
-          if (trackRef.current) {
-            trackRef.current.style.transform = `translateX(${realTargetX}px)`
-          }
-          animating.current = false
-        },
-      })
-    } else {
-      moveToReal(prev)
+  // Measure + set initial position
+  useEffect(() => {
+    const init = () => {
+      const step = measure()
+      if (step > 0) setCardWidth(step - GAP)
+      goTo(0, false)
     }
-  }, [currentIndex, total, getStep, moveToReal])
+    // small delay to ensure DOM is ready
+    const raf = requestAnimationFrame(() => requestAnimationFrame(init))
+    return () => cancelAnimationFrame(raf)
+  }, [measure, goTo])
+
+  // Recalculate on resize
+  useEffect(() => {
+    const onResize = () => goTo(currentIndex, false)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [currentIndex, goTo])
 
   // Auto scroll
   useEffect(() => {
-    const startAuto = () => {
-      stopAuto()
-      autoTimerRef.current = setInterval(() => {
-        if (!pausedRef.current && !animating.current) {
-          goToNext()
-        }
-      }, AUTO_SCROLL_INTERVAL)
+    if (autoRef.current) clearInterval(autoRef.current)
+    if (!pausedRef.current) {
+      autoRef.current = setInterval(goToNext, AUTO_INTERVAL)
     }
+    return () => { if (autoRef.current) clearInterval(autoRef.current) }
+  }, [goToNext, isPaused])
 
-    const stopAuto = () => {
-      if (autoTimerRef.current) {
-        clearInterval(autoTimerRef.current)
-        autoTimerRef.current = null
-      }
-    }
-
-    startAuto()
-    return stopAuto
-  }, [goToNext])
-
-  const handlePause = () => {
-    pausedRef.current = true
-    setIsPaused(true)
+  const togglePause = () => {
+    pausedRef.current = !pausedRef.current
+    setIsPaused(pausedRef.current)
   }
-
-  const handleResume = () => {
-    pausedRef.current = false
-    setIsPaused(false)
-  }
-
-  // Set initial position
-  useEffect(() => {
-    const step = getStep()
-    const initialX = -(3) * step
-    x.current = initialX
-    if (trackRef.current) {
-      trackRef.current.style.transform = `translateX(${initialX}px)`
-    }
-  }, [getStep])
 
   return (
-    <section id="projects" className="py-20 lg:py-32 overflow-hidden">
+    <section id="projects" className="py-20 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          ref={headerRef}
-          initial={{ opacity: 0, y: 30 }}
-          animate={headerInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7 }}
-          className="text-center mb-16"
-        >
+        {/* Header */}
+        <div ref={headerRef} className="text-center mb-12 sm:mb-16">
           <div className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 px-4 py-1.5 rounded-full text-xs font-medium tracking-wide uppercase mb-6">
             Real Projects
           </div>
@@ -293,113 +164,68 @@ export function ProjectsSection() {
             Real Renewable Energy Projects
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            12 real solar energy projects in Colombia, with over 200 kWp installed.
-            Each project is verified by an IoT oracle that measures production in real time.
+            11 real solar energy projects in Colombia. Each project is verified by an IoT oracle that measures production in real time.
           </p>
-        </motion.div>
+        </div>
 
         {/* Carousel */}
-        <div
-          className="relative"
-          onMouseEnter={handlePause}
-          onMouseLeave={handleResume}
-        >
-          {/* Navigation Arrows - Desktop */}
+        <div className="relative" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { if (!isPaused) pausedRef.current = false }}>
+          {/* Arrows — visible on all screens */}
           <button
             onClick={goToPrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 sm:-translate-x-5 z-20 w-11 h-11 rounded-full bg-card/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-all hidden sm:flex"
+            className="absolute left-0 top-[35%] -translate-y-1/2 -translate-x-1 sm:-translate-x-4 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-card/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-all"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-
           <button
             onClick={goToNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 sm:translate-x-5 z-20 w-11 h-11 rounded-full bg-card/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-all hidden sm:flex"
+            className="absolute right-0 top-[35%] -translate-y-1/2 translate-x-1 sm:translate-x-4 z-20 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-card/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-all"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
-          {/* Cards Track */}
-          <div
-            ref={containerRef}
-            className="overflow-hidden mx-0 sm:mx-4"
-          >
-            <div
-              ref={trackRef}
-              className="flex"
-              style={{ gap: CARD_GAP, willChange: 'transform' }}
-            >
-              {extended.map((project, i) => (
-                <ProjectCard key={`${project.id}-${i}`} project={project} />
+          {/* Track */}
+          <div ref={containerRef} className="overflow-hidden">
+            <div ref={trackRef} className="flex" style={{ gap: `${GAP}px` }}>
+              {PROJECTS_DATA.map((project) => (
+                <ProjectCard key={project.id} project={project} />
               ))}
             </div>
           </div>
 
-          {/* Dot Indicators */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            {PROJECTS_DATA.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => moveToReal(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  i === currentIndex
-                    ? 'bg-primary w-8'
-                    : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50'
-                }`}
-              />
-            ))}
-          </div>
+          {/* Controls */}
+          <div className="flex items-center justify-center gap-3 mt-6 sm:mt-8">
+            {/* Dots — hidden on very small screens, shown on sm+ */}
+            <div className="hidden sm:flex items-center gap-2">
+              {PROJECTS_DATA.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === currentIndex
+                      ? 'bg-primary w-6 sm:w-8'
+                      : 'bg-muted-foreground/30 w-2 hover:bg-muted-foreground/50'
+                  }`}
+                />
+              ))}
+            </div>
 
-          {/* Play/Pause indicator */}
-          <div className="flex justify-center mt-4">
+            {/* Mobile: counter */}
+            <span className="sm:hidden text-sm text-muted-foreground tabular-nums">
+              {currentIndex + 1} / {total}
+            </span>
+
+            {/* Pause/Play */}
             <button
-              onClick={() => {
-                if (isPaused) {
-                  handleResume()
-                } else {
-                  handlePause()
-                }
-              }}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+              onClick={togglePause}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors ml-2"
             >
-              {isPaused ? (
-                <>
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                  Auto-scroll paused
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                  </svg>
-                  Auto-scrolling
-                </>
-              )}
+              {isPaused ? <Play className="w-3 h-3" /> : <Pause className="w-3 h-3" />}
+              <span className="hidden sm:inline">{isPaused ? 'Paused' : 'Auto'}</span>
             </button>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <div className="flex items-center justify-center gap-4 mt-4 sm:hidden">
-          <button
-            onClick={goToPrev}
-            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <span className="text-sm text-muted-foreground tabular-nums">
-            {currentIndex + 1} / {total}
-          </span>
-          <button
-            onClick={goToNext}
-            className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
       </div>
     </section>
-  );
+  )
 }

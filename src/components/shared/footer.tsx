@@ -59,9 +59,9 @@ export function Footer() {
             </p>
             
             {/* Contract Address */}
-            <div className="bg-muted/50 rounded-lg p-3 inline-flex items-center gap-2 text-xs font-mono text-muted-foreground">
-              <span className="text-foreground">Contract:</span>
-              <span>{TOKEN_CONFIG.contractAddress.slice(0, 10)}...{TOKEN_CONFIG.contractAddress.slice(-8)}</span>
+            <div className="bg-muted/50 rounded-lg p-3 inline-flex items-center gap-2 text-xs font-mono text-muted-foreground max-w-full overflow-hidden">
+              <span className="text-foreground shrink-0">Contract:</span>
+              <span className="truncate">{TOKEN_CONFIG.contractAddress.slice(0, 10)}...{TOKEN_CONFIG.contractAddress.slice(-8)}</span>
               <button 
                 onClick={() => navigator.clipboard.writeText(TOKEN_CONFIG.contractAddress)}
                 className="hover:text-foreground transition-colors"

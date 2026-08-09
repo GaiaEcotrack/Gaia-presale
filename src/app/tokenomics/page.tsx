@@ -80,7 +80,7 @@ export default function TokenomicsPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ delay: 0.2 }}
-              className="relative h-[400px]"
+              className="relative h-[300px] sm:h-[400px] overflow-hidden"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -88,8 +88,8 @@ export default function TokenomicsPage() {
                     data={chartData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={100}
-                    outerRadius={160}
+                    innerRadius={80}
+                    outerRadius={120}
                     paddingAngle={3}
                     dataKey="value"
                   >

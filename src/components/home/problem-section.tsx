@@ -44,7 +44,7 @@ function AnimatedStat({ value, suffix, isDecimal }: { value: number; suffix: str
 
   return (
     <div ref={ref}>
-      <p className="text-4xl font-bold">
+      <p className="text-3xl sm:text-4xl font-bold">
         {isDecimal ? count.toFixed(1) : count}{suffix}
       </p>
     </div>

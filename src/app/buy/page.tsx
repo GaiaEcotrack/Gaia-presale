@@ -32,7 +32,7 @@ export default function BuyPage() {
       {/* Main Content */}
       <section className="py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-12">
+          <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
             {/* Presale Widget */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
