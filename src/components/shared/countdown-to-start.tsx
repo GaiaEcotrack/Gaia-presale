@@ -2,8 +2,12 @@
 
 import { motion } from 'framer-motion'
 import { useCountdown } from '@/hooks/use-countdown'
-import { useEffect } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
 import { usePresaleConfigReadonly } from '@/hooks/use-presale-config'
+
+const emptySubscribe = () => () => {}
+const getClientSnapshot = () => true
+const getServerSnapshot = () => false
 
 interface CountdownToStartProps {
   targetDate?: Date | string
@@ -21,7 +25,16 @@ export function CountdownToStart({
   showStageInfo = true
 }: CountdownToStartProps) {
   const { nextStage, nextStageStartDate } = usePresaleConfigReadonly()
-  
+
+  // Hydration guard: live time values differ between server render and client
+  // hydration, so render a stable skeleton until mounted. useSyncExternalStore
+  // flips to true right after hydration without setState-in-effect.
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    getClientSnapshot,
+    getServerSnapshot,
+  )
+
   // Use provided targetDate or calculate next stage start date
   const calculatedTargetDate = targetDate || nextStageStartDate
   const { days, hours, minutes, seconds, total } = useCountdown(calculatedTargetDate || new Date())
@@ -64,6 +77,30 @@ export function CountdownToStart({
   }
 
   const classes = sizeClasses[size]
+
+  if (!mounted) {
+    // Stable SSR/hydration output — same box layout, no time-dependent text.
+    return (
+      <div className={`${className}`}>
+        {showStageInfo && (
+          <div className="text-center mb-6">
+            <h3 className={`${classes.title} font-bold mb-2`}>
+              Countdown to Next Presale Stage
+            </h3>
+          </div>
+        )}
+        <div className={`flex items-center justify-center ${classes.container}`} aria-hidden>
+          {['00', '00', '00', '00'].map((v, i) => (
+            <div key={i} className="flex flex-col items-center">
+              <div className={`bg-black/10 dark:bg-white/10 rounded-xl ${classes.box}`}>
+                <span className={`${classes.number} font-mono tabular-nums select-none`}>{v}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   if (!calculatedTargetDate) {
     return (

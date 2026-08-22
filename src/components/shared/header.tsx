@@ -27,6 +27,7 @@ const NAV_LINKS = [
 
 const ACTION_LINKS = [
   { href: '/buy', label: 'Buy' },
+  { href: '/dashboard/investment', label: 'Dashboard' },
   { href: '/claim', label: 'Claim' },
 ]
 

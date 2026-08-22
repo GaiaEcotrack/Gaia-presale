@@ -45,7 +45,7 @@ export const TEAM_MEMBERS = [
     name: "Diego Rosas",
     role: "CTO",
     bio: "Blockchain Development (Rust, Solana), IoT Architecture.",
-    photo: null,
+    photo: "/team/diego-rosas.jpeg",
     linkedin: null,
     twitter: null,
   },

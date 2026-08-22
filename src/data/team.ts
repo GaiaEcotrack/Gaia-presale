@@ -24,7 +24,7 @@ export const TEAM_DATA: TeamMember[] = [
     role: "CTO",
     specialty: "Blockchain Development (Rust, Solana), IoT Architecture",
     experience: null,
-    photo: null,
+    photo: "/team/diego-rosas.jpeg",
     linkedin: null,
   },
   {

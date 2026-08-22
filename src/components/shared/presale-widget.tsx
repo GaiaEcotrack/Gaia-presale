@@ -1,18 +1,29 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Wallet, ArrowRight, Loader2, Check, ExternalLink, Coins } from 'lucide-react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { motion } from 'framer-motion'
+import { Wallet, ArrowRight, Loader2, Coins } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { useWallet } from '@/hooks/use-wallet'
-import { useToast } from '@/hooks/use-toast'
+import { usePurchaseStatus } from '@/hooks/use-purchase-status'
+import { PurchaseStatusCard } from '@/components/presale/purchase-status-card'
 import { getReadProgram } from '@/lib/anchor/program'
 import { fetchConfig, fetchAllRounds } from '@/lib/anchor/fetch'
 import { executeBuy } from '@/lib/anchor/instructions/buy'
-import { PublicKey } from '@solana/web3.js'
+import { deriveVestingSchedule } from '@/lib/vesting/adapter'
+import {
+  postPurchaseRecord,
+  recordLocalPurchase,
+} from '@/lib/api/gaia-backend'
+import { PURCHASE_MESSAGES } from '@/lib/messages'
 import type { Config, Round } from '@/lib/anchor/config'
+import type {
+  PurchaseSnapshot,
+  VestingSchedule,
+} from '@/types/investment'
 
 interface PresaleWidgetProps {
   compact?: boolean
@@ -20,16 +31,15 @@ interface PresaleWidgetProps {
 
 export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
   const [amount, setAmount] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
-  const [txUrl, setTxUrl] = useState('')
   const [selectedCurrency, setSelectedCurrency] = useState<'USDC' | 'USDT'>('USDC')
   const [config, setConfig] = useState<Config | null>(null)
   const [round, setRound] = useState<Round | null>(null)
   const [loading, setLoading] = useState(true)
+  const [snapshot, setSnapshot] = useState<PurchaseSnapshot | null>(null)
+  const confirmedTxRef = useRef<string | null>(null)
 
-  const { isConnected, address, connectWallet, balance, sendTransaction } = useWallet()
-  const { toast } = useToast()
+  const { isConnected, address, connectWallet, balance, signerWallet } = useWallet()
+  const purchase = usePurchaseStatus({ watchKey: address ?? undefined })
 
   useEffect(() => {
     async function loadData() {
@@ -50,6 +60,35 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
     }
     loadData()
   }, [])
+
+  // Side effects once confirmation lands (exactly once per tx).
+  useEffect(() => {
+    if (
+      purchase.status === 'confirmed' &&
+      purchase.txId &&
+      snapshot &&
+      confirmedTxRef.current !== purchase.txId
+    ) {
+      confirmedTxRef.current = purchase.txId
+      toast.success(PURCHASE_MESSAGES.successTitle, {
+        description: `You acquired ${snapshot.amountGaia.toLocaleString()} GAIA tokens.`,
+      })
+      postPurchaseRecord({
+        wallet: snapshot.wallet,
+        txId: purchase.txId,
+        amountGaia: snapshot.amountGaia,
+        amountUsdc: snapshot.paidAmount,
+        currency: snapshot.currency,
+        timestamp: snapshot.sentAt,
+      })
+    }
+  }, [purchase.status, purchase.txId, snapshot])
+
+  // Success screen vesting calendar — derived live from the on-chain round.
+  const schedule: VestingSchedule | null = useMemo(() => {
+    if (!config || !round) return null
+    return deriveVestingSchedule(round, config, snapshot?.amountGaia)
+  }, [config, round, snapshot])
 
   const pricePerToken = round
     ? Number(round.price_micro_usd) / 1_000_000
@@ -81,56 +120,53 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
 
     const usdAmount = parseFloat(amount)
     if (!usdAmount || usdAmount <= 0) {
-      toast({
-        title: 'Invalid amount',
+      toast.error('Invalid amount', {
         description: 'Please enter a valid amount to purchase.',
-        variant: 'destructive',
       })
       return
     }
 
     if (!config || !round) {
-      toast({
-        title: 'Loading',
+      toast.error('Loading', {
         description: 'Please wait for presale data to load.',
-        variant: 'destructive',
       })
       return
     }
 
-    setIsProcessing(true)
-    try {
-      const paymentMint = selectedCurrency === 'USDC'
-        ? config.usdc_mint
-        : config.usdt_mint
+    const paymentMint =
+      selectedCurrency === 'USDC' ? config.usdc_mint : config.usdt_mint
+    const paymentAmount = BigInt(Math.floor(usdAmount * 1_000_000))
 
-      const paymentAmount = BigInt(Math.floor(usdAmount * 1_000_000))
+    // Snapshot captured BEFORE send — success screen uses it, while on-chain
+    // state remains the source of truth for everything verifiable.
+    setSnapshot({
+      wallet: address!,
+      txId: null,
+      amountGaia: tokens,
+      paidAmount: usdAmount,
+      currency: selectedCurrency,
+      sentAt: new Date().toISOString(),
+    })
 
-      const result = await executeBuy(
-        { publicKey: new PublicKey(address!), sendTransaction, signTransaction: (window as any).solana?.signTransaction, signAllTransactions: (window as any).solana?.signAllTransactions } as any,
-        {
-          roundId: round.id,
-          paymentMint,
-          paymentAmount,
-        },
-      )
-
-      setTxUrl(result.explorerUrl)
-      setShowSuccess(true)
-      setAmount('')
-      toast({
-        title: 'Purchase successful!',
-        description: `You will receive ${tokens.toLocaleString()} GAIA tokens.`,
-      })
-    } catch (error: any) {
-      toast({
-        title: 'Transaction failed',
-        description: error.message || 'Please try again.',
-        variant: 'destructive',
-      })
-    } finally {
-      setIsProcessing(false)
-    }
+    await purchase.start({
+      connected: isConnected,
+      send: async () => {
+        if (!signerWallet) throw new Error('Wallet not connected')
+        // Returns right after network send — signature available immediately.
+        const result = await executeBuy(
+          signerWallet,
+          { roundId: round.id, paymentMint, paymentAmount },
+          { awaitConfirmation: false },
+        )
+        // Real signature linked to its Purchase PDA index for the dashboard.
+        recordLocalPurchase(address!, {
+          purchaseNumber: result.purchaseNumber,
+          txId: result.signature,
+          timestamp: new Date().toISOString(),
+        })
+        return result.signature
+      },
+    })
   }
 
   const quickAmounts = [10, 25, 50, 100]
@@ -218,7 +254,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
           <Wallet className="w-5 h-5" />
           Connect Wallet
         </Button>
-      ) : (
+      ) : purchase.status === 'idle' ? (
         <>
           {/* Currency Selector */}
           <div className="flex gap-2 mb-4">
@@ -308,19 +344,14 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
           {/* Buy Button */}
           <Button
             onClick={handlePurchase}
-            disabled={isProcessing || !amount || parseFloat(amount) <= 0}
+            disabled={purchase.isActive || !amount || parseFloat(amount) <= 0}
             className="w-full h-14 text-lg gap-2"
             size="lg"
           >
-            {isProcessing ? (
+            {purchase.isActive ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 Processing...
-              </>
-            ) : showSuccess ? (
-              <>
-                <Check className="w-5 h-5" />
-                Success!
               </>
             ) : (
               <>
@@ -329,25 +360,26 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
               </>
             )}
           </Button>
-
-          {/* Transaction Link */}
-          {showSuccess && txUrl && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-4 text-center"
-            >
-              <a
-                href={txUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-500 hover:underline inline-flex items-center gap-1"
-              >
-                View on Explorer <ExternalLink className="w-3 h-3" />
-              </a>
-            </motion.div>
-          )}
         </>
+      ) : null}
+
+      {/* Purchase flow states — replaces the form while active/terminal */}
+      {isConnected && purchase.status !== 'idle' && (
+        <PurchaseStatusCard
+          status={purchase.status}
+          txId={purchase.txId}
+          errorMessage={purchase.errorMessage}
+          snapshot={
+            snapshot && purchase.txId ? { ...snapshot, txId: purchase.txId } : null
+          }
+          schedule={schedule}
+          onRetry={handlePurchase}
+          onReset={() => {
+            setSnapshot(null)
+            setAmount('')
+            purchase.reset()
+          }}
+        />
       )}
     </div>
   )

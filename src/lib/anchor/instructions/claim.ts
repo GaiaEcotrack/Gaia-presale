@@ -8,7 +8,10 @@ import {
   type TransactionInstruction,
   Transaction,
 } from "@solana/web3.js";
-import type { WalletContextState } from "@solana/wallet-adapter-react";
+import {
+  type ExecuteInstructionOptions,
+  type SignerWallet,
+} from "../wallet";
 import { getProgramForWallet, getConnection } from "../program";
 import {
   findConfigPda,
@@ -27,10 +30,19 @@ export interface ClaimInput {
   purchaseNumber: bigint;
 }
 
+export interface ClaimResult {
+  signature: string;
+  explorerUrl: string;
+  blockhash: string;
+  lastValidBlockHeight: number;
+}
+
 export async function executeClaim(
-  wallet: WalletContextState,
+  wallet: SignerWallet,
   input: ClaimInput,
-): Promise<{ signature: string; explorerUrl: string }> {
+  options: ExecuteInstructionOptions = {},
+): Promise<ClaimResult> {
+  const { awaitConfirmation = true } = options;
   if (!wallet.publicKey) throw new Error("Wallet not connected");
   if (!wallet.signTransaction) throw new Error("Wallet does not support signing");
 
@@ -123,10 +135,12 @@ export async function executeClaim(
   console.timeEnd("send-transaction");
 
   console.time("confirm-transaction");
-  await connection.confirmTransaction(
-    { signature, blockhash, lastValidBlockHeight },
-    "confirmed",
-  );
+  if (awaitConfirmation) {
+    await connection.confirmTransaction(
+      { signature, blockhash, lastValidBlockHeight },
+      "confirmed",
+    );
+  }
   console.timeEnd("confirm-transaction");
 
   console.log(`[CLAIM] Signature: ${signature}`);
@@ -134,5 +148,7 @@ export async function executeClaim(
   return {
     signature,
     explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`,
+    blockhash,
+    lastValidBlockHeight,
   };
 }

@@ -12,7 +12,10 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
-import type { WalletContextState } from "@solana/wallet-adapter-react";
+import {
+  type ExecuteInstructionOptions,
+  type SignerWallet,
+} from "../wallet";
 import { getProgramForWallet, getConnection } from "../program";
 import {
   findConfigPda,
@@ -30,10 +33,21 @@ export interface BuyInput {
   paymentAmount: bigint;
 }
 
+export interface BuyResult {
+  signature: string;
+  explorerUrl: string;
+  blockhash: string;
+  lastValidBlockHeight: number;
+  /** Purchase index used (buyer_profile.purchase_count at build time). */
+  purchaseNumber: number;
+}
+
 export async function executeBuy(
-  wallet: WalletContextState,
+  wallet: SignerWallet,
   input: BuyInput,
-): Promise<{ signature: string; explorerUrl: string }> {
+  options: ExecuteInstructionOptions = {},
+): Promise<BuyResult> {
+  const { awaitConfirmation = true } = options;
   if (!wallet.publicKey) throw new Error("Wallet not connected");
   if (!wallet.sendTransaction) throw new Error("Wallet does not support sendTransaction");
 
@@ -161,10 +175,12 @@ export async function executeBuy(
   console.timeEnd("wallet-send");
 
   console.time("confirm-transaction");
-  await connection.confirmTransaction(
-    { signature, blockhash, lastValidBlockHeight },
-    "confirmed",
-  );
+  if (awaitConfirmation) {
+    await connection.confirmTransaction(
+      { signature, blockhash, lastValidBlockHeight },
+      "confirmed",
+    );
+  }
   console.timeEnd("confirm-transaction");
 
   console.log(`[BUY] Signature: ${signature}`);
@@ -172,5 +188,8 @@ export async function executeBuy(
   return {
     signature,
     explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`,
+    blockhash,
+    lastValidBlockHeight,
+    purchaseNumber: Number(purchaseCount),
   };
 }

@@ -80,7 +80,7 @@ export function ProblemSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {STATS.map((stat, i) => (
             <motion.div
-              key={stat.suffix}
+              key={`${stat.value}-${stat.suffix}`}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.2 + i * 0.15, ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number] }}
