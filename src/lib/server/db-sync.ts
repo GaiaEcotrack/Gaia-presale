@@ -379,6 +379,80 @@ async function resolveProtocolBlock(
   }
 }
 
+/**
+ * Derives PER-PURCHASE vesting facts (withdrawn + claimable) using the
+ * canonical linear curve with each purchase's OWN round parameters.
+ *
+ * withdrawn_i  = SUM(Claims.amountGaia CONFIRMED WHERE purchaseNumber = i)
+ * vested_i     = linear(total_i, withdrawn_i, tge, cliff_i, duration_i)
+ * claimable_i  = max(vested_i - withdrawn_i, 0)
+ *
+ * Round/Config PDAs are served by the short-lived caches in program-state,
+ * so this costs at most one RPC per DISTINCT round id (not per request).
+ */
+async function derivePerPurchaseVesting(
+  purchases: { id: string; roundId: number; purchaseNumber: bigint | null; amountGaia: Prisma.Decimal }[],
+  claims: { amountGaia: Prisma.Decimal; purchaseNumber: bigint | null }[],
+): Promise<Map<string, { withdrawnGaia: string; claimableGaia: string }>> {
+  const out = new Map<string, { withdrawnGaia: string; claimableGaia: string }>()
+  if (purchases.length === 0) return out
+
+  // Withdrawn per purchase number (DB-only, always available).
+  const withdrawnByNumber = new Map<string, Prisma.Decimal>()
+  for (const c of claims) {
+    if (c.purchaseNumber === null) continue
+    const key = c.purchaseNumber.toString()
+    withdrawnByNumber.set(key, (withdrawnByNumber.get(key) ?? new Prisma.Decimal(0)).add(c.amountGaia))
+  }
+
+  const { getVerifyConnection } = await import('./rpc')
+  const { fetchProgramConfig, fetchRoundRecord } = await import('./program-state')
+
+  let tgeSec: bigint | null = null
+  try {
+    tgeSec = (await fetchProgramConfig(getVerifyConnection()))?.tgeTimestamp ?? null
+  } catch {
+    tgeSec = null
+  }
+
+  const roundCache = new Map<number, Awaited<ReturnType<typeof fetchRoundRecord>>>()
+  for (const p of purchases) {
+    let params: { cliffSeconds: bigint; vestingDurationSeconds: bigint } | null = null
+    if (tgeSec !== null && !roundCache.has(p.roundId)) {
+      try {
+        roundCache.set(p.roundId, await fetchRoundRecord(getVerifyConnection(), p.roundId))
+      } catch {
+        roundCache.set(p.roundId, null)
+      }
+    }
+    const round = roundCache.get(p.roundId) ?? null
+    if (tgeSec !== null && round) {
+      params = { cliffSeconds: round.cliffSeconds, vestingDurationSeconds: round.vestingDurationSeconds }
+    }
+
+    const key = p.purchaseNumber?.toString()
+    const withdrawn = (key !== undefined ? withdrawnByNumber.get(key) : undefined) ?? new Prisma.Decimal(0)
+
+    let claimable = new Prisma.Decimal(0)
+    if (params) {
+      const breakdown = computeLinearVesting({
+        totalBaseUnits: decimalToBaseUnits(p.amountGaia),
+        claimedBaseUnits: decimalToBaseUnits(withdrawn),
+        tgeTimestampSec: tgeSec as bigint,
+        cliffSeconds: params.cliffSeconds,
+        vestingDurationSeconds: params.vestingDurationSeconds,
+      })
+      claimable = baseUnitsToDecimal(breakdown.claimableBaseUnits, 6)
+    }
+
+    out.set(p.id, {
+      withdrawnGaia: withdrawn.toString(),
+      claimableGaia: claimable.toString(),
+    })
+  }
+  return out
+}
+
 export async function getInvestmentData(walletAddress: string) {
   const normalized = normalizeWalletAddress(walletAddress)
   if (!normalized) {
@@ -423,6 +497,17 @@ export async function getInvestmentData(walletAddress: string) {
 
     const newestRoundId = wallet.purchases.length > 0 ? wallet.purchases[0].roundId : null
 
+    // PER-PURCHASE vesting facts for honest per-row claim buttons.
+    const perPurchaseVesting = await derivePerPurchaseVesting(
+      wallet.purchases.map((p) => ({
+        id: p.id,
+        roundId: p.roundId,
+        purchaseNumber: p.purchaseNumber,
+        amountGaia: p.amountGaia,
+      })),
+      wallet.claims.map((c) => ({ amountGaia: c.amountGaia, purchaseNumber: c.purchaseNumber })),
+    )
+
     const totalUsdc = sumDecimal(wallet.purchases.map((p) => p.amountUsdc))
     const totalGaia = sumDecimal(wallet.purchases.map((p) => p.amountGaia))
     const withdrawnGaia = sumDecimal(wallet.claims.map((c) => c.amountGaia))
@@ -454,12 +539,16 @@ export async function getInvestmentData(walletAddress: string) {
         wallet: wallet.address,
         summary,
         protocol: await resolveProtocolBlock(newestRoundId),
-        purchases: wallet.purchases.map((p) => ({
+        purchases: wallet.purchases.map((p) => {
+          const per = perPurchaseVesting.get(p.id) ?? { withdrawnGaia: '0', claimableGaia: '0' }
+          return {
           id: p.id,
           txSignature: p.txSignature,
           instructionIndex: p.instructionIndex,
           roundId: p.roundId,
           purchaseNumber: p.purchaseNumber != null ? p.purchaseNumber.toString() : null,
+          withdrawnGaia: per.withdrawnGaia,
+          claimableGaia: per.claimableGaia,
           amountUsdc: p.amountUsdc.toString(),
           amountGaia: p.amountGaia.toString(),
           currency: p.currency,
@@ -467,7 +556,8 @@ export async function getInvestmentData(walletAddress: string) {
           blockTime: p.blockTime != null ? p.blockTime.toString() : null,
           slot: p.slot != null ? p.slot.toString() : null,
           createdAt: p.createdAt.toISOString(),
-        })),
+          }
+        }),
         claims: wallet.claims.map((c) => ({
           id: c.id,
           txSignature: c.txSignature,

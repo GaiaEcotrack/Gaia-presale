@@ -281,7 +281,7 @@ describe('GAIA ECOTRACK — 19-step REAL acceptance flow', () => {
         data: {
           summary: Record<string, string>
           protocol: { gaiaVault: string } | null
-          purchases: unknown[]
+          purchases: { claimableGaia: unknown; withdrawnGaia: unknown }[]
           claims: unknown[]
         }
       }
@@ -292,6 +292,10 @@ describe('GAIA ECOTRACK — 19-step REAL acceptance flow', () => {
       expect(json.data.summary.withdrawnGaia).toBe('250')
       expect(json.data.protocol?.gaiaVault).toBeTruthy()
       expect(json.data.purchases.length).toBeGreaterThanOrEqual(1)
+      for (const p of json.data.purchases) {
+        expect(typeof p.claimableGaia).toBe('string')
+        expect(typeof p.withdrawnGaia).toBe('string')
+      }
       expect(json.data.claims.length).toBeGreaterThanOrEqual(1)
     }
 

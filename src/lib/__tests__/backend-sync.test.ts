@@ -70,7 +70,7 @@ const FUTURE_VESTING = {
   vestingDurationSeconds: BigInt(10_368_000),
 }
 
-function successPurchase(signature: string, amountGaiaHuman: string) {
+function successPurchase(signature: string, amountGaiaHuman: string, purchaseNumber: bigint = 0n) {
   const gaia = new Prisma.Decimal(amountGaiaHuman)
   return {
     success: true as const,
@@ -82,7 +82,7 @@ function successPurchase(signature: string, amountGaiaHuman: string) {
       amountUsdc: gaia.div(125),
       amountGaia: gaia,
       currency: 'USDC' as const,
-      purchaseNumber: 0n,
+      purchaseNumber,
       blockTime: BigInt(1_700_000_000),
       slot: 1n,
       vestingParams: FUTURE_VESTING,
@@ -90,7 +90,7 @@ function successPurchase(signature: string, amountGaiaHuman: string) {
   }
 }
 
-function successClaim(signature: string, amountGaiaHuman: string) {
+function successClaim(signature: string, amountGaiaHuman: string, purchaseNumber: bigint = 0n) {
   return {
     success: true as const,
     verifiedData: {
@@ -98,7 +98,7 @@ function successClaim(signature: string, amountGaiaHuman: string) {
       instructionIndex: 0,
       verifiedBuyer: wallet,
       amountGaia: new Prisma.Decimal(amountGaiaHuman),
-      purchaseNumber: 0n,
+      purchaseNumber,
       blockTime: null as bigint | null,
       slot: 2n,
       vestingParams: FUTURE_VESTING,
@@ -218,6 +218,37 @@ describe('idempotency + deterministic SUM (cases 25/26/29)', () => {
     expect(Number(position?.unlockedAmount)).toBe(0)
     expect(Number(position?.lockedAmount)).toBe(500)
     expect(Number(position?.claimableAmount)).toBe(0)
+  })
+})
+
+describe('per-purchase claimable derivation', () => {
+  it('exposes exact withdrawn/claimable per purchase and consistent aggregate', async () => {
+    // Purchase A (#10): 100 GAIA · Purchase B (#20): 400 GAIA — same round.
+    const buyA = `${runNonce}paA${'m'.repeat(40)}`
+    const buyB = `${runNonce}pbB${'n'.repeat(40)}`
+    mockVerify.mockResolvedValue(successPurchase(buyA, '100', 10n))
+    await syncPurchaseTx({ txSignature: buyA })
+    mockVerify.mockResolvedValue(successPurchase(buyB, '400', 20n))
+    await syncPurchaseTx({ txSignature: buyB })
+
+    // Claim 30 against purchase #10 only.
+    const cA = `${runNonce}pcA${'o'.repeat(40)}`
+    mockVerifyClaim.mockResolvedValue(successClaim(cA, '30', 10n))
+    await syncClaimTx({ txSignature: cA })
+
+    const inv = await getInvestmentData(wallet)
+    expect(inv.success).toBe(true)
+    const byNumber = new Map(inv.data?.purchases.map((p) => [p.purchaseNumber, p]))
+    const a = byNumber.get('10')
+    const b = byNumber.get('20')
+    expect(a?.withdrawnGaia).toBe('30')
+    expect(a?.claimableGaia).toBe('70')
+    expect(b?.withdrawnGaia).toBe('0')
+    expect(b?.claimableGaia).toBe('400')
+
+    // Aggregate stays consistent with per-purchase sums.
+    expect(Number(inv.data?.summary.withdrawnGaia)).toBe(30)
+    expect(Number(inv.data?.summary.totalAcquiredGaia)).toBe(500)
   })
 })
 

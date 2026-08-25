@@ -28,6 +28,9 @@ export interface BackendPurchase {
   purchaseNumber: string | null
   amountUsdc: string
   amountGaia: string
+  /** Per-purchase canonical vesting facts (decimal strings). */
+  withdrawnGaia: string
+  claimableGaia: string
   currency: 'USDC' | 'USDT'
   status: string
   blockTime: string | null

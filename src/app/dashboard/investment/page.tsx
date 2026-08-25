@@ -240,11 +240,16 @@ export default function InvestmentDashboardPage() {
 
                   <GasWarning solBalance={sol.solBalance} />
 
-                  {aggregate && purchase.purchaseNumber !== null && purchase.purchaseNumber !== '' && (
+                  {aggregate && purchase.purchaseNumber !== null && purchase.purchaseNumber !== '' && (() => {
+                    // PER-PURCHASE facts — never the wallet aggregate.
+                    const pClaimable = Number(purchase.claimableGaia)
+                    const pWithdrawn = Number(purchase.withdrawnGaia)
+                    const pTotal = Number(purchase.amountGaia)
+                    return (
                     <ClaimButton
-                      claimable={aggregate.claimableAmount}
+                      claimable={pClaimable}
                       nextRelease={aggregate.nextRelease ?? null}
-                      fullyClaimed={aggregate.fullyClaimed}
+                      fullyClaimed={pClaimable <= 0 && pWithdrawn >= pTotal && pTotal > 0}
                       // Round-gate parity is enforced FRESH inside useClaim at
                       // execution time; backend data intentionally does not
                       // duplicate that decision.
@@ -263,7 +268,8 @@ export default function InvestmentDashboardPage() {
                         })
                       }}
                     />
-                  )}
+                    )
+                  })()}
                 </div>
               ))}
 
