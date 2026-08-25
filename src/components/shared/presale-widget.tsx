@@ -14,10 +14,8 @@ import { getReadProgram } from '@/lib/anchor/program'
 import { fetchConfig, fetchAllRounds } from '@/lib/anchor/fetch'
 import { executeBuy } from '@/lib/anchor/instructions/buy'
 import { deriveVestingSchedule } from '@/lib/vesting/adapter'
-import {
-  postPurchaseRecord,
-  recordLocalPurchase,
-} from '@/lib/api/gaia-backend'
+import { postPurchaseRecord } from '@/lib/api/gaia-backend'
+import { bigintToDecimalString, formatDecimalString } from '@/lib/format'
 import { PURCHASE_MESSAGES } from '@/lib/messages'
 import type { Config, Round } from '@/lib/anchor/config'
 import type {
@@ -27,6 +25,20 @@ import type {
 
 interface PresaleWidgetProps {
   compact?: boolean
+}
+
+/**
+ * Converts a decimal-string USD input (e.g. "12.34") into stablecoin base
+ * units using pure integer math — never parseFloat/float multiplication.
+ * Returns null for empty, malformed or non-positive inputs.
+ */
+function usdInputToBaseUnits(input: string): bigint | null {
+  const trimmed = input.trim()
+  if (!/^\d*(\.\d*)?$/.test(trimmed) || trimmed === '' || trimmed === '.') return null
+  const [intPart, fracPart = ''] = trimmed.split('.')
+  const frac6 = fracPart.slice(0, 6).padEnd(6, '0')
+  const base = BigInt(intPart || '0') * 1_000_000n + BigInt(frac6 || '0')
+  return base > 0n ? base : null
 }
 
 export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
@@ -71,15 +83,13 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
     ) {
       confirmedTxRef.current = purchase.txId
       toast.success(PURCHASE_MESSAGES.successTitle, {
-        description: `You acquired ${snapshot.amountGaia.toLocaleString()} GAIA tokens.`,
+        description: `You acquired ${formatDecimalString(snapshot.amountGaia)} GAIA tokens.`,
       })
+      // Canonical backend sync — the ONLY persistence path. Server re-verifies
+      // the tx on-chain and derives all financial facts itself.
       postPurchaseRecord({
         wallet: snapshot.wallet,
         txId: purchase.txId,
-        amountGaia: snapshot.amountGaia,
-        amountUsdc: snapshot.paidAmount,
-        currency: snapshot.currency,
-        timestamp: snapshot.sentAt,
       })
     }
   }, [purchase.status, purchase.txId, snapshot])
@@ -87,8 +97,8 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
   // Success screen vesting calendar — derived live from the on-chain round.
   const schedule: VestingSchedule | null = useMemo(() => {
     if (!config || !round) return null
-    return deriveVestingSchedule(round, config, snapshot?.amountGaia)
-  }, [config, round, snapshot])
+    return deriveVestingSchedule(round, config)
+  }, [config, round])
 
   const pricePerToken = round
     ? Number(round.price_micro_usd) / 1_000_000
@@ -102,27 +112,20 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
   const tokensSold = round ? Number(round.tokens_sold) / 1e6 : 0
   const progress = totalTokens > 0 ? (tokensSold / totalTokens) * 100 : 0
 
-  const calculateTokens = useCallback(
-    (usdAmount: number): number => {
-      if (pricePerToken <= 0) return 0
-      return Math.floor(usdAmount / pricePerToken)
-    },
-    [pricePerToken],
-  )
-
-  const tokens = amount ? calculateTokens(parseFloat(amount) || 0) : 0
+  // Display-only estimate of GAIA output, computed with integer math from
+  // the on-chain price (price_micro_usd). Never persisted; chain decides.
+  const estimatedTokens: string = useMemo(() => {
+    if (!round || !amount) return '0'
+    const base = usdInputToBaseUnits(amount)
+    if (base === null || base <= 0n || round.price_micro_usd <= 0n) return '0'
+    // tokens_base = payment_base_units * 1e6 / price_micro_usd (floor)
+    const tokensBase = (base * 1_000_000n) / round.price_micro_usd
+    return bigintToDecimalString(tokensBase, 6)
+  }, [round, amount])
 
   const handlePurchase = async () => {
     if (!isConnected) {
       connectWallet()
-      return
-    }
-
-    const usdAmount = parseFloat(amount)
-    if (!usdAmount || usdAmount <= 0) {
-      toast.error('Invalid amount', {
-        description: 'Please enter a valid amount to purchase.',
-      })
       return
     }
 
@@ -135,15 +138,23 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
 
     const paymentMint =
       selectedCurrency === 'USDC' ? config.usdc_mint : config.usdt_mint
-    const paymentAmount = BigInt(Math.floor(usdAmount * 1_000_000))
+    // Decimal-safe conversion of the user input to stablecoin base units —
+    // no floating-point multiplication ever touches the financial value.
+    const paymentAmount = usdInputToBaseUnits(amount)
+    if (paymentAmount === null) {
+      toast.error('Invalid amount', {
+        description: 'Please enter a valid amount to purchase.',
+      })
+      return
+    }
 
     // Snapshot captured BEFORE send — success screen uses it, while on-chain
     // state remains the source of truth for everything verifiable.
     setSnapshot({
       wallet: address!,
       txId: null,
-      amountGaia: tokens,
-      paidAmount: usdAmount,
+      amountGaia: estimatedTokens,
+      paidAmount: bigintToDecimalString(paymentAmount, 6),
       currency: selectedCurrency,
       sentAt: new Date().toISOString(),
     })
@@ -158,12 +169,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
           { roundId: round.id, paymentMint, paymentAmount },
           { awaitConfirmation: false },
         )
-        // Real signature linked to its Purchase PDA index for the dashboard.
-        recordLocalPurchase(address!, {
-          purchaseNumber: result.purchaseNumber,
-          txId: result.signature,
-          timestamp: new Date().toISOString(),
-        })
+        // Backend is the ONLY financial persistence — no local storage.
         return result.signature
       },
     })
@@ -319,7 +325,7 @@ export function PresaleWidget({ compact = false }: PresaleWidgetProps) {
                   <span className="text-muted-foreground">You will receive</span>
                   <span className="font-medium flex items-center gap-1">
                     <Coins className="w-4 h-4" />
-                    {tokens.toLocaleString()} GAIA
+                    {formatDecimalString(estimatedTokens)} GAIA
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">

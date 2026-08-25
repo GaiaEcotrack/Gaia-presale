@@ -103,12 +103,19 @@ export const MOCK_STATS = {
 };
 
 // Network configuration
+import { getSolscanAddressUrl } from "@/lib/solana/explorer";
+
 export const NETWORK_CONFIG = {
   chainId: 0,
   name: "Solana Devnet",
   currency: "SOL",
   rpcUrl: process.env.NEXT_PUBLIC_SOLANA_RPC ?? "https://api.devnet.solana.com",
-  blockExplorer: "https://explorer.solana.com",
+  // Explorer links are centralized in src/lib/solana/explorer.ts (Solscan
+  // primary, cluster-driven). This base is derived through the same helper.
+  blockExplorerBase: (() => {
+    const url = getSolscanAddressUrl("0");
+    return url.replace(/\/account\/0.*$/, "");
+  })(),
   targetNetwork: "Solana",
 };
 

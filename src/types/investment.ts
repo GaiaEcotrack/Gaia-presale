@@ -49,12 +49,17 @@ export interface VestingState {
   fullyClaimed: boolean
 }
 
-export type ClaimHistorySource = 'backend' | 'on-chain' | 'local-provisional'
+export type ClaimHistorySource = 'backend' | 'sync-pending'
 
+/**
+ * A confirmed claim as reported by the backend.
+ * amountClaimed is a DECIMAL STRING — never parsed through Number() so no
+ * financial precision is ever lost in transport or display preparation.
+ */
 export interface ClaimRecord {
   wallet: string
   claimTxId: string
-  amountClaimed: number
+  amountClaimed: string
   /** ISO 8601 UTC */
   timestamp: string
   vestingReleaseIndex?: number
@@ -64,8 +69,8 @@ export interface ClaimHistoryResult {
   records: ClaimRecord[]
   source: ClaimHistorySource
   /**
-   * true only when records come from backend or indexed on-chain history.
-   * local-provisional records are never authoritative.
+   * true ONLY when records come from the authoritative backend. The
+   * 'sync-pending' source carries zero records and never pretends otherwise.
    */
   authoritative: boolean
 }
@@ -98,8 +103,12 @@ export interface NormalizedError<K extends string = PurchaseErrorKind> {
 export interface PurchaseSnapshot {
   wallet: string
   txId: string | null
-  amountGaia: number
-  paidAmount: number
+  /**
+   * Display-only estimates as DECIMAL STRINGS produced by integer math.
+   * The on-chain Purchase PDA remains the source of truth for real amounts.
+   */
+  amountGaia: string
+  paidAmount: string
   currency: 'USDC' | 'USDT'
   sentAt: string
 }

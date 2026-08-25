@@ -1,57 +1,45 @@
 'use client'
 
-// Investment summary (manual §6.2): totals, first purchase date and per-
-// purchase TX links. TX links use REAL signatures only — purchases made in
-// another device show a provisional placeholder until backend sync exists.
+// Investment summary — BACKEND-DRIVEN. Totals and per-purchase rows render
+// exclusively from GET /api/investment/[wallet] payload. Every purchase row
+// links its REAL verified txSignature via Solscan. No localStorage anywhere.
 
 import { ExternalLink } from 'lucide-react'
 import {
   formatDateLocal,
   formatTokenAmount,
-  formatUsdAmount,
+  formatDecimalString,
 } from '@/lib/format'
-import { TxRow } from '@/components/presale/tx-row'
-import { getSolscanAddressUrl } from '@/lib/solana/explorer'
-import { VESTING_MESSAGES } from '@/lib/messages'
-import { getLocalPurchaseTxs } from '@/lib/api/gaia-backend'
-import type { Config } from '@/lib/anchor/config'
-import type { NormalizedInvestment } from '@/lib/vesting/adapter'
+import { getSolscanTxUrl, getSolscanAddressUrl } from '@/lib/solana/explorer'
+import type { BackendPurchase } from '@/hooks/use-investments'
 import type { VestingState } from '@/types/investment'
 
+interface SummaryStrings {
+  totalPurchasedUsdc: string
+  totalAcquiredGaia: string
+  unlockedGaia: string
+  withdrawnGaia: string
+  claimableGaia: string
+  lockedGaia: string
+}
+
 interface InvestmentSummaryProps {
-  investments: NormalizedInvestment[]
+  summary: SummaryStrings
+  purchases: BackendPurchase[]
   aggregate: VestingState | null
-  config: Config | null
+  gaiaMintAddress: string | null
 }
 
 export function InvestmentSummary({
-  investments,
+  summary,
+  purchases,
   aggregate,
-  config,
+  gaiaMintAddress,
 }: InvestmentSummaryProps) {
-  if (!aggregate || investments.length === 0) return null
+  if (!aggregate || purchases.length === 0) return null
 
-  const localTxs = getLocalPurchaseTxs(investments[0]?.purchase.wallet.toBase58() ?? '')
-
-  const paidByCurrency = new Map<string, number>()
-  for (const inv of investments) {
-    if (!config) break
-    const mint = inv.purchase.payment_mint.toBase58()
-    const symbol =
-      mint === config.usdc_mint.toBase58()
-        ? 'USDC'
-        : mint === config.usdt_mint.toBase58()
-          ? 'USDT'
-          : null
-    if (!symbol) continue
-    paidByCurrency.set(
-      symbol,
-      (paidByCurrency.get(symbol) ?? 0) + Number(inv.purchase.payment_amount) / 1e6,
-    )
-  }
-
-  const firstPurchaseAt = investments
-    .map((inv) => Number(inv.purchase.timestamp) * 1000)
+  const firstPurchaseAt = purchases
+    .map((p) => new Date(p.createdAt).getTime())
     .reduce((min, t) => Math.min(min, t), Number.POSITIVE_INFINITY)
 
   return (
@@ -59,23 +47,17 @@ export function InvestmentSummary({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <div className="bg-muted/50 rounded-xl p-4 text-center">
           <p className="text-xl sm:text-2xl font-bold tabular-nums">
-            {formatTokenAmount(aggregate.totalAmount)}
+            {formatDecimalString(summary.totalAcquiredGaia)}
           </p>
           <p className="text-xs text-muted-foreground">Total GAIA acquired</p>
         </div>
         <div className="bg-muted/50 rounded-xl p-4 text-center">
-          <p className="text-xl sm:text-2xl font-bold tabular-nums">
-            {[...paidByCurrency.entries()].map(([symbol, amount], i) => (
-              <span key={symbol}>
-                {i > 0 && ' · '}
-                {formatUsdAmount(amount)} {symbol}
-              </span>
-            ))}
-            {paidByCurrency.size === 0 && '—'}
+          <p className="text-sm sm:text-base font-medium pt-1">
+            {formatDecimalString(summary.totalPurchasedUsdc)} USD
           </p>
           <p className="text-xs text-muted-foreground">Total paid</p>
         </div>
-        <div className="bg-muted/50 rounded-xl p-4 text-center col-span-2 sm:col-span-1">
+        <div className="bg-muted/50 rounded-xl p-4 text-center">
           <p className="text-sm sm:text-base font-medium pt-1">
             {Number.isFinite(firstPurchaseAt)
               ? formatDateLocal(new Date(firstPurchaseAt))
@@ -85,42 +67,42 @@ export function InvestmentSummary({
         </div>
       </div>
 
-      {/* Per-purchase rows */}
+      {/* Per-purchase rows — real verified signatures from PostgreSQL */}
       <div className="space-y-2">
-        {investments.map((inv) => {
-          const purchaseNumber = Number(inv.purchase.purchase_number)
-          const localTx = localTxs[String(purchaseNumber)]
-          return (
-            <div
-              key={`${inv.purchase.round_id}-${purchaseNumber}`}
-              className="border border-border rounded-lg p-3 flex flex-col gap-2"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-medium text-sm">
-                  {inv.round.name || `Round #${inv.round.id}`}
+        {purchases.map((purchase) => (
+          <div
+            key={purchase.id}
+            className="border border-border rounded-lg p-3 flex flex-col gap-2"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-medium text-sm">
+                Round #{purchase.roundId}
+                {purchase.purchaseNumber !== null && (
                   <span className="ml-2 text-xs text-muted-foreground">
-                    Purchase #{purchaseNumber}
+                    Purchase #{purchase.purchaseNumber}
                   </span>
-                </p>
-                <p className="text-sm tabular-nums">
-                  {formatTokenAmount(inv.state.totalAmount)} GAIA
-                </p>
-              </div>
-              {localTx ? (
-                <TxRow txId={localTx.txId} />
-              ) : (
-                <p className="text-xs text-muted-foreground" title="Transaction links sync once the backend service is live. Verify all purchases in the explorer below.">
-                  TX link not recorded on this device — check the program explorer.
-                </p>
-              )}
+                )}
+              </p>
+              <p className="text-sm tabular-nums">
+                {formatTokenAmount(Number(purchase.amountGaia))} GAIA ·{' '}
+                {formatDecimalString(purchase.amountUsdc)} {purchase.currency}
+              </p>
             </div>
-          )
-        })}
+            <a
+              href={getSolscanTxUrl(purchase.txSignature)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs text-blue-500 hover:underline truncate"
+            >
+              {purchase.txSignature}
+            </a>
+          </div>
+        ))}
       </div>
 
-      {config && (
+      {gaiaMintAddress && (
         <a
-          href={getSolscanAddressUrl(config.gaia_mint.toBase58())}
+          href={getSolscanAddressUrl(gaiaMintAddress)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 text-sm text-blue-500 hover:underline"

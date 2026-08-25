@@ -22,7 +22,7 @@ import {
   findStatisticsPda,
 } from "../pda";
 import { fetchConfig, fetchRound, fetchBuyerProfile, fetchPurchase } from "../fetch";
-import { CLUSTER } from "../config";
+import { getSolscanTxUrl } from "@/lib/solana/explorer";
 import type { PublicKey } from "@solana/web3.js";
 
 export interface ClaimInput {
@@ -147,7 +147,7 @@ export async function executeClaim(
 
   return {
     signature,
-    explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`,
+    explorerUrl: getSolscanTxUrl(signature),
     blockhash,
     lastValidBlockHeight,
   };

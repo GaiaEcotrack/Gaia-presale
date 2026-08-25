@@ -1,44 +1,132 @@
 'use client'
 
-// Dashboard data layer ("Mi inversión").
+// Dashboard data layer ("Mi inversión") — BACKEND-DRIVEN.
 //
-// - Reads ONLY real on-chain data via the anchor fetch utilities.
-// - Normalizes everything through the vesting adapter (UI never touches raw
-//   program shapes).
-// - Auto-refresh every 30s (single interval, cleared on unmount / wallet
-//   change) + manual refresh + immediate refresh after a claim.
-// - Stale-response guard: only the latest request may commit state.
+// POST-REMEDIATION CONTRACT:
+//   - Purchases, claims, vesting totals and history come EXCLUSIVELY from the
+//     canonical endpoint GET /api/investment/[wallet] (PostgreSQL facts that
+//     were themselves verified on-chain before persistence).
+//   - The frontend is a presentation layer: no financial data is read from or
+//     written to localStorage/sessionStorage/indexedDB, and no direct Anchor
+//     RPC is used for financial records while the canonical API exists.
+//   - Freshness is honest: the payload's isStale flag is surfaced untouched.
+//   - Auto-refresh every 30s + manual refresh + immediate refresh after claim.
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { PublicKey } from '@solana/web3.js'
-import { getReadProgram } from '@/lib/anchor/program'
-import {
-  fetchConfig,
-  fetchBuyerProfile,
-  fetchPurchasesForWallet,
-  fetchRound,
-} from '@/lib/anchor/fetch'
-import type { Config, Round } from '@/lib/anchor/config'
-import {
-  aggregateVestingState,
-  normalizeInvestments,
-  type NormalizedInvestment,
-} from '@/lib/vesting/adapter'
+import { deriveLinearReleases } from '@/lib/vesting/schedule'
 import type { VestingState } from '@/types/investment'
 
 export const INVESTMENTS_REFRESH_MS = 30_000
 
-// Rounds are effectively immutable once created — cache across refreshes so a
-// 30s poll never re-fetches unchanged rounds.
-const roundsCache = new Map<number, Round>()
-
 export type InvestmentsStatus = 'idle' | 'loading' | 'ready' | 'error'
+
+export interface BackendPurchase {
+  id: string
+  txSignature: string
+  instructionIndex: number
+  roundId: number
+  purchaseNumber: string | null
+  amountUsdc: string
+  amountGaia: string
+  currency: 'USDC' | 'USDT'
+  status: string
+  blockTime: string | null
+  slot: string | null
+  createdAt: string
+}
+
+export interface BackendClaim {
+  id: string
+  txSignature: string
+  instructionIndex: number
+  amountGaia: string
+  purchaseNumber: string | null
+  status: string
+  createdAt: string
+}
+
+export interface BackendProtocol {
+  tgeTimestampSec: string
+  cliffSeconds: string
+  vestingDurationSeconds: string
+  gaiaVault: string
+}
+
+interface InvestmentPayload {
+  wallet: string
+  summary: {
+    totalPurchasedUsdc: string
+    totalAcquiredGaia: string
+    unlockedGaia: string
+    withdrawnGaia: string
+    claimableGaia: string
+    lockedGaia: string
+  }
+  protocol: BackendProtocol | null
+  purchases: BackendPurchase[]
+  claims: BackendClaim[]
+  vestingPositions: {
+    id: string
+    purchaseId: string | null
+    totalAmount: string
+    unlockedAmount: string
+    withdrawnAmount: string
+    claimableAmount: string
+    lockedAmount: string
+    source: string
+  }[]
+}
+
+/** Display conversion only — persistence stays string-based end-to-end. */
+function toNumber(value: string): number {
+  const parsed = Number(value)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
+/**
+ * Builds the aggregate vesting view model from backend strings using the
+ * CANONICAL linear curve (same math as contract + server).
+ */
+export function buildAggregateState(
+  payload: InvestmentPayload,
+  nowMs: number = Date.now(),
+): VestingState | null {
+  const hasPosition = payload.vestingPositions.length > 0
+  if (!hasPosition || !payload.protocol) return null
+
+  const position = payload.vestingPositions[0]
+  const curve = deriveLinearReleases({
+    tgeTimestampSec: BigInt(payload.protocol.tgeTimestampSec),
+    cliffSeconds: BigInt(payload.protocol.cliffSeconds),
+    vestingDurationSeconds: BigInt(payload.protocol.vestingDurationSeconds),
+    },
+    { nowIso: new Date(nowMs).toISOString() },
+  )
+
+  const total = toNumber(position.totalAmount)
+  const withdrawn = toNumber(position.withdrawnAmount)
+  const claimable = toNumber(position.claimableAmount)
+
+  const nowIso = new Date(nowMs).toISOString()
+  const pending = curve.releases.filter((r) => r.releaseAt > nowIso)
+
+  return {
+    totalAmount: total,
+    unlockedAmount: toNumber(position.unlockedAmount),
+    withdrawnAmount: withdrawn,
+    lockedAmount: toNumber(position.lockedAmount),
+    claimableAmount: claimable,
+    claimedAmount: withdrawn,
+    releases: curve.releases,
+    nextRelease: pending[0],
+    fullyClaimed: total > 0 && claimable === 0 && withdrawn >= total,
+  }
+}
 
 export function useInvestments(address: string | null) {
   const [status, setStatus] = useState<InvestmentsStatus>('idle')
-  const [errorKind, setErrorKind] = useState<'load' | 'uninitialized' | null>(null)
-  const [config, setConfig] = useState<Config | null>(null)
-  const [investments, setInvestments] = useState<NormalizedInvestment[]>([])
+  const [isStale, setIsStale] = useState(false)
+  const [payload, setPayload] = useState<InvestmentPayload | null>(null)
   const [refreshing, setRefreshing] = useState(false)
 
   const requestIdRef = useRef(0)
@@ -49,8 +137,8 @@ export function useInvestments(address: string | null) {
     async (mode: 'initial' | 'refresh') => {
       if (!address) {
         setStatus('idle')
-        setConfig(null)
-        setInvestments([])
+        setPayload(null)
+        setIsStale(false)
         return
       }
 
@@ -59,70 +147,33 @@ export function useInvestments(address: string | null) {
       setRefreshing(true)
 
       try {
-        const program = getReadProgram()
-        const walletKey = new PublicKey(address)
-
-        const fetchedConfig = await fetchConfig(program)
+        const res = await fetch(`/api/investment/${encodeURIComponent(address)}`)
         if (requestId !== requestIdRef.current || !mountedRef.current) return
 
-        if (!fetchedConfig) {
-          setErrorKind('uninitialized')
-          setStatus('ready')
-          setConfig(null)
-          setInvestments([])
-          return
-        }
-        setConfig(fetchedConfig)
-
-        const profile = await fetchBuyerProfile(program, walletKey).catch(() => null)
-        if (requestId !== requestIdRef.current || !mountedRef.current) return
-
-        if (!profile || profile.purchase_count === 0n) {
-          setInvestments([])
-          setErrorKind(null)
-          setStatus('ready')
+        if (!res.ok) {
+          setStatus('error')
           return
         }
 
-        const purchases = await fetchPurchasesForWallet(
-          program,
-          walletKey,
-          profile.purchase_count,
-        )
+        const json = (await res.json()) as {
+          success?: boolean
+          isStale?: boolean
+          data?: InvestmentPayload
+        }
         if (requestId !== requestIdRef.current || !mountedRef.current) return
 
-        // Deduplicate round fetches within this cycle.
-        const missingRoundIds = [
-          ...new Set(purchases.map((p) => p.round_id)),
-        ].filter((id) => !roundsCache.has(id))
-        for (const id of missingRoundIds) {
-          const round = await fetchRound(program, id)
-          if (round) roundsCache.set(id, round)
+        if (!json.success || !json.data) {
+          setStatus('error')
+          return
         }
 
-        const resolvedRounds = new Map<number, Round>()
-        for (const id of new Set(purchases.map((p) => p.round_id))) {
-          const cached = roundsCache.get(id)
-          if (cached) resolvedRounds.set(id, cached)
-        }
-
-        const normalized = normalizeInvestments({
-          wallet: address,
-          config: fetchedConfig,
-          buyerProfile: profile,
-          purchases,
-          roundsById: resolvedRounds,
-        })
-        if (requestId !== requestIdRef.current || !mountedRef.current) return
-
-        setInvestments(normalized)
-        setErrorKind(null)
+        setPayload(json.data)
+        setIsStale(Boolean(json.isStale))
         setStatus('ready')
-      } catch (err) {
-        console.error('[investments] load failed:', err)
-        if (requestId !== requestIdRef.current || !mountedRef.current) return
-        setErrorKind('load')
-        setStatus('error')
+      } catch {
+        if (requestId === requestIdRef.current && mountedRef.current) {
+          setStatus('error')
+        }
       } finally {
         if (requestId === requestIdRef.current && mountedRef.current) {
           setRefreshing(false)
@@ -132,7 +183,6 @@ export function useInvestments(address: string | null) {
     [address],
   )
 
-  // Initial load + reload on wallet change.
   useEffect(() => {
     mountedRef.current = true
     void load('initial')
@@ -141,7 +191,6 @@ export function useInvestments(address: string | null) {
     }
   }, [load])
 
-  // 30s auto-refresh — single interval, cleaned on unmount / wallet change.
   useEffect(() => {
     if (!address) return
     intervalRef.current = setInterval(() => {
@@ -159,10 +208,21 @@ export function useInvestments(address: string | null) {
     await load('refresh')
   }, [load])
 
-  const aggregate: VestingState | null =
-    investments.length > 0 ? aggregateVestingState(investments.map((i) => i.state)) : null
+  const aggregateState = payload ? buildAggregateState(payload) : null
 
-  return { status, errorKind, config, investments, aggregate, refresh, refreshing }
+  return {
+    status,
+    errorKind: null as null | 'load' | 'uninitialized',
+    isStale,
+    summary: payload?.summary ?? null,
+    protocol: payload?.protocol ?? null,
+    purchases: payload?.purchases ?? [],
+    claims: payload?.claims ?? [],
+    vestingPositions: payload?.vestingPositions ?? [],
+    aggregateState,
+    refresh,
+    refreshing,
+  }
 }
 
 export type UseInvestmentsResult = ReturnType<typeof useInvestments>

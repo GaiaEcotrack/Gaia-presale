@@ -1,39 +1,128 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma schema for GAIA ECOTRACK Persistence Layer
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum PaymentCurrency {
+  USDC
+  USDT
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum PurchaseStatus {
+  CONFIRMED
+  FAILED
+}
+
+enum ClaimStatus {
+  CONFIRMED
+  FAILED
+}
+
+enum VestingSource {
+  ANCHOR
+  STREAMFLOW
+}
+
+enum SyncStatus {
+  SUCCESS
+  REJECTED
+  ERROR
+}
+
+model Wallet {
+  id               String            @id @default(cuid())
+  address          String            @unique
+  createdAt        DateTime          @default(now())
+  lastSeenAt       DateTime          @default(now())
+  // Freshness marker for honest isStale reporting (GAP-8):
+  // set on every successful server-side verification/sync.
+  lastVerifiedAt   DateTime?
+  purchases        Purchase[]
+  claims           Claim[]
+  vestingPositions VestingPosition[]
+}
+
+model Purchase {
+  id               String          @id @default(cuid())
+  walletId         String
+  wallet           Wallet          @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  txSignature      String
+  instructionIndex Int             @default(0)
+  roundId          Int
+  // Sequential purchase index decoded from the on-chain Purchase PDA
+  // (verified fact; enables backend-driven claim flows).
+  purchaseNumber   BigInt?
+  amountUsdc       Decimal         @db.Decimal(36, 18)
+  amountGaia       Decimal         @db.Decimal(36, 18)
+  currency         PaymentCurrency @default(USDC)
+  status           PurchaseStatus  @default(CONFIRMED)
+  blockTime        BigInt?
+  slot             BigInt?
+  createdAt        DateTime        @default(now())
+  vestingPosition  VestingPosition?
+
+  @@unique([txSignature, instructionIndex])
+  @@index([walletId, createdAt])
+}
+
+model Claim {
+  id               String      @id @default(cuid())
+  walletId         String
+  wallet           Wallet      @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  txSignature      String
+  instructionIndex Int         @default(0)
+  amountGaia       Decimal     @db.Decimal(36, 18)
+  purchaseNumber   BigInt?
+  status           ClaimStatus @default(CONFIRMED)
+  blockTime        BigInt?
+  slot             BigInt?
+  createdAt        DateTime    @default(now())
+
+  @@unique([txSignature, instructionIndex])
+  @@index([walletId, createdAt])
+}
+
+model VestingPosition {
+  id              String        @id @default(cuid())
+  walletId        String
+  wallet          Wallet        @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  purchaseId      String?       @unique
+  purchase        Purchase?     @relation(fields: [purchaseId], references: [id], onDelete: SetNull)
+  totalAmount     Decimal       @db.Decimal(36, 18)
+  unlockedAmount  Decimal       @db.Decimal(36, 18)
+  withdrawnAmount Decimal       @db.Decimal(36, 18)
+  claimableAmount Decimal       @db.Decimal(36, 18)
+  lockedAmount    Decimal       @db.Decimal(36, 18)
+  vaultAddress    String?
+  source          VestingSource @default(ANCHOR)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([walletId])
+}
+model SyncAttempt {
+  id            String     @id @default(cuid())
+  txSignature   String
+  walletAddress String?
+  operation     String     // "PURCHASE_SYNC" | "CLAIM_SYNC"
+  status        SyncStatus
+  reason        String?
+  ipAddress     String?
+  createdAt     DateTime   @default(now())
+
+  @@index([txSignature])
+  @@index([walletAddress])
 }
 
 model Subscriber {
   id        String   @id @default(cuid())
   email     String   @unique
-  source    String   @default("pre-launch") // "pre-launch" | "newsletter"
+  source    String   @default("pre-launch")
   createdAt DateTime @default(now())
 }

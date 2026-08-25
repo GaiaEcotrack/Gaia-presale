@@ -1,127 +1,95 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   getClaimHistory,
-  recordLocalClaim,
-  getLocalPurchaseTxs,
-  recordLocalPurchase,
+  postClaimSync,
+  postPurchaseRecord,
 } from '@/lib/api/gaia-backend'
 
-/* Minimal localStorage stub — lets us test corrupt/unavailable storage. */
-type Store = Record<string, string>
+const fetchMock = vi.fn()
+vi.stubGlobal('fetch', fetchMock)
 
-function installWindow(store: Store | null) {
-  const prev = (globalThis as { window?: unknown }).window
-  if (store === null) {
-    delete (globalThis as { window?: unknown }).window
-  } else {
-    ;(globalThis as { window?: unknown }).window = {
-      localStorage: {
-        getItem: (k: string) => store[k] ?? null,
-        setItem: (k: string, v: string) => {
-          store[k] = v
-        },
-        removeItem: (k: string) => {
-          delete store[k]
-        },
-      },
-    }
+afterEach(() => {
+  fetchMock.mockReset()
+})
+
+/**
+ * Financial localStorage REMOVAL guarantee (GAP-6 / case 36):
+ * if any code path under test touches window.localStorage the spy fails.
+ */
+function installStorageTripwire(): ReturnType<typeof vi.fn> {
+  const setItemSpy = vi.fn((_k: string, _v: string) => {
+    throw new Error('localStorage.setItem MUST NOT be used for financial data')
+  })
+  const storage = {
+    setItem: setItemSpy,
+    getItem: vi.fn(() => null),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
   }
-  return () => {
-    if (prev === undefined) delete (globalThis as { window?: unknown }).window
-    else (globalThis as { window?: unknown }).window = prev
-  }
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: { location: { origin: 'http://test.local' }, localStorage: storage },
+  })
+  return setItemSpy
 }
 
-const WALLET = 'GxYabcGxYabcGxYabcGxYabcGxYabcGxYabcp9Q'
-
-describe('claim history source priority (correction #1)', () => {
-  let restore: () => void
-
-  beforeEach(() => {
-    // No NEXT_PUBLIC_GAIA_API_URL in test env → backend path inactive.
-    restore = installWindow({})
-  })
-
-  afterEach(() => {
-    restore()
-  })
-
-  it('without backend → local-provisional and NEVER authoritative', async () => {
-    const res = await getClaimHistory(WALLET)
-    expect(res.source).toBe('local-provisional')
-    expect(res.authoritative).toBe(false)
-    expect(res.records).toEqual([])
-  })
-
-  it('corrupt localStorage is tolerated as empty', async () => {
-    restore()
-    restore = installWindow({
-      [`gaia-claim-history:${WALLET.toLowerCase()}`]: '{not json',
-    })
-    const res = await getClaimHistory(WALLET)
-    expect(res.records).toEqual([])
-    expect(res.source).toBe('local-provisional')
-  })
-
-  it('localStorage unavailable entirely → empty provisional', async () => {
-    restore()
-    restore = installWindow(null)
-    const res = await getClaimHistory(WALLET)
-    expect(res.records).toEqual([])
-    expect(res.authoritative).toBe(false)
-  })
-
-  it('records REAL claims, dedupes by txId and sorts newest first', async () => {
-    recordLocalClaim(WALLET, {
-      wallet: WALLET,
-      claimTxId: 'tx1',
-      amountClaimed: 100,
-      timestamp: '2027-02-13T10:15:00Z',
-    })
-    recordLocalClaim(WALLET, {
-      wallet: WALLET,
-      claimTxId: 'tx2',
-      amountClaimed: 200,
-      timestamp: '2027-03-13T10:15:00Z',
-    })
-    recordLocalClaim(WALLET, {
-      wallet: WALLET,
-      claimTxId: 'tx1',
-      amountClaimed: 100,
-      timestamp: '2027-02-13T10:15:00Z',
+describe('claim history — backend is the ONLY source', () => {
+  it('parses backend claims keeping amounts as decimal STRINGS', async () => {
+    installStorageTripwire()
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          claims: [
+            { txSignature: 'sig1', amountGaia: '12500.000000000000000000', createdAt: '2026-08-01T00:00:00Z' },
+            { txSignature: 'sig2', amountGaia: '3125.500000000000000000', createdAt: '2026-08-02T00:00:00Z' },
+          ],
+        },
+      }),
     })
 
-    const res = await getClaimHistory(WALLET)
+    const res = await getClaimHistory('wallet1')
+    expect(res.source).toBe('backend')
+    expect(res.authoritative).toBe(true)
     expect(res.records).toHaveLength(2)
-    expect(res.records[0].claimTxId).toBe('tx2')
-    expect(res.records[1].claimTxId).toBe('tx1')
+    expect(typeof res.records[0].amountClaimed).toBe('string')
+    expect(res.records[0].amountClaimed).toBe('12500.000000000000000000')
+  })
+
+  it('backend HTTP failure -> sync-pending with ZERO records', async () => {
+    const spy = installStorageTripwire()
+    fetchMock.mockResolvedValueOnce({ ok: false, status: 503 })
+
+    const res = await getClaimHistory('wallet1')
+    expect(res).toEqual({ records: [], source: 'sync-pending', authoritative: false })
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  it('network failure -> sync-pending, never local fallback data', async () => {
+    const spy = installStorageTripwire()
+    fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'))
+
+    const res = await getClaimHistory('wallet1')
+    expect(res.records).toEqual([])
+    expect(res.source).toBe('sync-pending')
+    expect(res.authoritative).toBe(false)
+    expect(spy).not.toHaveBeenCalled()
+  })
+
+  it('36. no financial localStorage writes occur in ANY flow', async () => {
+    const spy = installStorageTripwire()
+    fetchMock.mockResolvedValue({ ok: false })
+
+    await getClaimHistory('w')
+    postClaimSync('w', VALID_SIG)
+    postPurchaseRecord({ wallet: 'w', txId: VALID_SIG })
+
+    // fire-and-forget promises flush
+    await new Promise((r) => setTimeout(r, 0))
+    expect(spy).not.toHaveBeenCalled()
   })
 })
 
-describe('provisional purchase TX map', () => {
-  let restore: () => void
-
-  beforeEach(() => {
-    restore = installWindow({})
-  })
-
-  afterEach(() => {
-    restore()
-  })
-
-  it('stores and reads by purchaseNumber; invalid entries filtered', () => {
-    recordLocalPurchase(WALLET, {
-      purchaseNumber: 0,
-      txId: 'buysig1',
-      timestamp: '2026-08-13T14:32:00Z',
-    })
-    const map = getLocalPurchaseTxs(WALLET)
-    expect(map['0']?.txId).toBe('buysig1')
-  })
-
-  it('unavailable storage yields empty map instead of throwing', () => {
-    restore()
-    restore = installWindow(null)
-    expect(getLocalPurchaseTxs(WALLET)).toEqual({})
-  })
-})
+const VALID_SIG =
+  '5k8F3uW9J12v4xY7z6aB8cD1eF2gH3jK4mN5mN6oP7qR8sT9uV1wX2yZ3aB4cD5eF6gH7jK8mN9mN1oP2qR34567'

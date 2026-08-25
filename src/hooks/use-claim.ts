@@ -27,7 +27,8 @@ import {
 } from '@/lib/solana/polling'
 import { fetchOnChainFailureDetail } from '@/lib/solana/tx-failure'
 import { classifyClaimError } from '@/lib/errors/purchase-errors'
-import { recordLocalClaim } from '@/lib/api/gaia-backend'
+import { postClaimSync } from '@/lib/api/gaia-backend'
+import { bigintToDecimalString } from '@/lib/format'
 import { refreshSolBalance } from '@/hooks/use-sol-balance'
 import { SOL_THRESHOLDS } from '@/lib/messages'
 import type { SignerWallet } from '@/lib/anchor/wallet'
@@ -45,7 +46,7 @@ interface UseClaimOptions {
   address: string | null
   signerWallet: SignerWallet | null
   /** Called right after a successful claim so parents refresh immediately. */
-  onSuccess?: (info: { txId: string; amountClaimed: number }) => void
+  onSuccess?: (info: { txId: string; amountClaimed: string }) => void
 }
 
 async function classifyOnChainClaimFailure(
@@ -101,7 +102,6 @@ export function useClaim({ address, signerWallet, onSuccess }: UseClaimOptions) 
 
       busyRef.current = true
       const ownerKey = new PublicKey(address)
-      let claimableFresh = 0
 
       try {
         // --- Phase 1: checking with FRESH on-chain data -----------------
@@ -160,7 +160,8 @@ export function useClaim({ address, signerWallet, onSuccess }: UseClaimOptions) 
           setStatus('error')
           return false
         }
-        claimableFresh = Number(vesting.claimable) / 1e6
+        // Decimal-safe display amount: pure integer math, never Number().
+        const claimableDisplay = bigintToDecimalString(vesting.claimable, 6)
 
         // --- Phase 2: SOL fee gate (forced fresh balance) ---------------
         let solBalance: number | null = null
@@ -220,13 +221,10 @@ export function useClaim({ address, signerWallet, onSuccess }: UseClaimOptions) 
 
         if (succeeded) {
           setStatus('success')
-          recordLocalClaim(address, {
-            wallet: address,
-            claimTxId: signature,
-            amountClaimed: claimableFresh,
-            timestamp: new Date().toISOString(),
-          })
-          onSuccess?.({ txId: signature, amountClaimed: claimableFresh })
+          // Backend-only persistence: the server verifies the tx on-chain and
+          // writes the immutable Claim row. Nothing is stored locally.
+          postClaimSync(address, signature)
+          onSuccess?.({ txId: signature, amountClaimed: claimableDisplay })
           return true
         }
 

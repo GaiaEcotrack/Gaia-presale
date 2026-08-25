@@ -13,8 +13,7 @@ import { TxRow } from '@/components/presale/tx-row'
 import {
   formatDateLocal,
   formatDateTimeUtc,
-  formatTokenAmount,
-  formatUsdAmount,
+  formatDecimalString,
 } from '@/lib/format'
 import { PURCHASE_MESSAGES, VESTING_MESSAGES } from '@/lib/messages'
 import type { PurchaseSnapshot, VestingSchedule } from '@/types/investment'
@@ -47,14 +46,14 @@ export function PurchaseSuccess({ snapshot, schedule }: PurchaseSuccessProps) {
         <p className="text-lg font-semibold text-center">
           You have acquired{' '}
           <span className="text-primary">
-            {formatTokenAmount(snapshot.amountGaia)} GAIA
+            {formatDecimalString(snapshot.amountGaia)} GAIA
           </span>
         </p>
 
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Paid</span>
           <span className="font-medium">
-            {formatUsdAmount(snapshot.paidAmount)} {snapshot.currency}
+            {formatDecimalString(snapshot.paidAmount)} {snapshot.currency}
           </span>
         </div>
 

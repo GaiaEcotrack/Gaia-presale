@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ClaimWidget } from '@/components/shared/claim-widget'
 import { Shield, Clock, Coins, ExternalLink } from 'lucide-react'
 import { TOKEN_CONFIG } from '@/lib/constants'
+import { getSolscanAddressUrl } from '@/lib/solana/explorer'
 
 export default function ClaimPage() {
   return (
@@ -68,7 +69,7 @@ export default function ClaimPage() {
                     <div>
                       <p className="font-medium text-sm">Linear Vesting</p>
                       <p className="text-xs text-muted-foreground">
-                        After the cliff, tokens unlock linearly over the vesting duration.
+                        Después del cliff de 6 meses, los tokens se liberan de forma LINEAL y continua durante el periodo de vesting definido por la ronda (mismo cálculo que ejecuta el contrato on-chain).
                       </p>
                     </div>
                   </div>
@@ -89,14 +90,14 @@ export default function ClaimPage() {
                 <h3 className="font-semibold text-lg mb-4">Contract Info</h3>
                 <div className="space-y-3">
                   <a
-                    href={`https://explorer.solana.com/address/${TOKEN_CONFIG.contractAddress}?cluster=devnet`}
+                    href={getSolscanAddressUrl(TOKEN_CONFIG.contractAddress)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
                   >
                     <ExternalLink className="w-5 h-5 text-blue-500" />
                     <div>
-                      <p className="font-medium text-sm">View on Explorer</p>
+                      <p className="font-medium text-sm">View on Solscan</p>
                       <p className="text-xs text-muted-foreground">Check contract state</p>
                     </div>
                   </a>

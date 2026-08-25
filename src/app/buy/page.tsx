@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { PresaleWidget } from '@/components/shared/presale-widget'
 import { TOKEN_CONFIG } from '@/lib/constants'
 import { Wallet, Shield, Clock, Coins, ExternalLink } from 'lucide-react'
+import { getSolscanAddressUrl } from '@/lib/solana/explorer'
 
 export default function BuyPage() {
   return (
@@ -111,11 +112,11 @@ export default function BuyPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Shield className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">Anchor Program (Audited)</span>
+                    <span className="text-sm">Anchor Program (Devnet)</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="w-5 h-5 text-green-500" />
-                    <span className="text-sm">Cliff + Linear Vesting</span>
+                    <span className="text-sm">Cliff (6 meses) + Liberación Lineal (según ronda)</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Coins className="w-5 h-5 text-green-500" />
@@ -123,13 +124,13 @@ export default function BuyPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <a
-                      href={`https://explorer.solana.com/address/${TOKEN_CONFIG.contractAddress}?cluster=devnet`}
+                      href={getSolscanAddressUrl(TOKEN_CONFIG.contractAddress)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3"
                     >
                       <ExternalLink className="w-5 h-5 text-blue-500" />
-                      <span className="text-sm text-blue-500 hover:underline">View on Explorer</span>
+                      <span className="text-sm text-blue-500 hover:underline">View on Solscan</span>
                     </a>
                   </div>
                 </div>

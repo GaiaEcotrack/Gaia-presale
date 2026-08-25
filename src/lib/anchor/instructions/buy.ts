@@ -25,7 +25,7 @@ import {
   findStatisticsPda,
 } from "../pda";
 import { fetchConfig, fetchRound, fetchBuyerProfile } from "../fetch";
-import { CLUSTER } from "../config";
+import { getSolscanTxUrl } from "@/lib/solana/explorer";
 
 export interface BuyInput {
   roundId: number;
@@ -187,7 +187,7 @@ export async function executeBuy(
 
   return {
     signature,
-    explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=${CLUSTER}`,
+    explorerUrl: getSolscanTxUrl(signature),
     blockhash,
     lastValidBlockHeight,
     purchaseNumber: Number(purchaseCount),
