@@ -67,21 +67,24 @@ export function CtaFinal() {
                   href={link.href}
                   className="block bg-card border border-border rounded-2xl p-6 text-center hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                    <link.icon className="w-7 h-7" />
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mx-auto mb-4">
+                    <link.icon className="w-5 h-5" aria-hidden />
                   </div>
-                  <p className="text-base font-bold">{link.label}</p>
+                  <p className="text-base font-semibold">{link.label}</p>
                   <div className="flex items-center justify-center gap-1 mt-2 text-sm text-muted-foreground">
                     <span>View</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" aria-hidden />
                   </div>
                 </Link>
               ) : (
-                <div className="bg-card border border-border rounded-2xl p-6 text-center opacity-60 cursor-not-allowed">
-                  <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-                    <link.icon className="w-7 h-7" />
+                <div
+                  className="bg-card border border-border rounded-2xl p-6 text-center opacity-60 cursor-not-allowed"
+                  aria-disabled
+                >
+                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center mx-auto mb-4">
+                    <link.icon className="w-5 h-5" aria-hidden />
                   </div>
-                  <p className="text-base font-bold">{link.label}</p>
+                  <p className="text-base font-semibold">{link.label}</p>
                   <p className="text-sm text-muted-foreground mt-2">Coming soon</p>
                 </div>
               )}
@@ -89,29 +92,19 @@ export function CtaFinal() {
           ))}
         </div>
 
-        {/* Closing Statement */}
+        {/* Closing statement — standard site pattern */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.5 }}
-          className="relative text-center py-16 lg:py-20 bg-muted/30 border-y border-border overflow-hidden"
+          className="text-center py-16 lg:py-20 bg-muted/30 border-y border-border"
         >
-          {/* Animated gradient glow */}
-          <motion.div
-            animate={{
-              background: [
-                'radial-gradient(ellipse at 20% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
-                'radial-gradient(ellipse at 80% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
-                'radial-gradient(ellipse at 20% 50%, rgba(0,40,80,0.08) 0%, transparent 50%)',
-              ],
-            }}
-            transition={{ repeat: Infinity, duration: 8, ease: 'easeInOut' }}
-            className="absolute inset-0"
-          />
-          <p className="relative text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
+          <p className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight">
             Gaia Ecotrack is not just a token.
             <br />
-            <span className="gradient-text">It&apos;s the infrastructure for a decentralized energy future.</span>
+            <span className="gradient-text">
+              It&apos;s the infrastructure for a decentralized energy future.
+            </span>
           </p>
         </motion.div>
       </div>

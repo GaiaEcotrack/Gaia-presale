@@ -10,5 +10,8 @@ export default defineConfig({
   test: {
     include: ['src/**/*.test.ts'],
     environment: 'node',
+    // Remote-DB suites (Neon pooler) occasionally exceed the 5s default.
+    testTimeout: 20_000,
+    hookTimeout: 20_000,
   },
 })

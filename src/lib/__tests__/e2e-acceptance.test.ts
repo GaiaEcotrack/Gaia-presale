@@ -26,6 +26,15 @@ function sigFor(tag: string): string {
 let runNonce: string
 let wallet: string
 
+/** Unique per-run on-curve wallet — huge nonce space prevents cross-run/file collisions. */
+function walletFromNonce(nonce: string): string {
+  const seed = new Uint8Array(32)
+  Buffer.from(nonce).forEach((b, i) => {
+    seed[i % 32] = (seed[i % 32] + b) % 256
+  })
+  return Keypair.fromSeed(seed).publicKey.toBase58()
+}
+
 beforeAll(async () => {
   try {
     await db.$queryRaw`SELECT 1`
@@ -40,8 +49,8 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   runNonce = Math.random().toString(36).slice(2, 10)
-  wallet = Keypair.fromSeed(new Uint8Array(32).fill(Math.floor(Math.random() * 250) + 1))
-    .publicKey.toBase58()
+  runNonce += Math.random().toString(36).slice(2)
+  wallet = walletFromNonce(runNonce)
 })
 
 afterEach(() => {
