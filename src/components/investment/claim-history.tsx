@@ -58,8 +58,6 @@ export function ClaimHistory({ wallet, refreshKey = 0 }: ClaimHistoryProps) {
 
   return (
     <div className="space-y-3">
-      <h3 className="font-semibold text-lg">Claim history</h3>
-
       {syncPending && (
         <p
           className="rounded-lg bg-muted/60 border border-border px-3 py-2 text-xs text-muted-foreground"
